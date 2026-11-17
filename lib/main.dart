@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'core/providers/app_provider.dart';
-import 'core/theme/app_theme.dart';
-import 'features/splash/splash_screen.dart';
+import 'config/app_theme.dart';
+import 'routes/app_routes.dart';
+import 'services/app_provider.dart';
 
 void main() {
   runApp(
@@ -22,7 +22,8 @@ class SinSamExpressApp extends StatelessWidget {
       title: 'SinSam Express',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      initialRoute: AppRoutes.splash,
+      routes: AppRoutes.routes,
     );
   }
 }
