@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'config/app_theme.dart';
-import 'routes/app_routes.dart';
-import 'routes/route_generator.dart';
+import 'package:provider/provider.dart';
+import 'core/providers/app_provider.dart';
+import 'core/theme/app_theme.dart';
+import 'features/splash/splash_screen.dart';
 
 void main() {
-  runApp(const SinSamExpressApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppProvider(),
+      child: const SinSamExpressApp(),
+    ),
+  );
 }
 
 class SinSamExpressApp extends StatelessWidget {
@@ -15,9 +21,8 @@ class SinSamExpressApp extends StatelessWidget {
     return MaterialApp(
       title: 'SinSam Express',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      initialRoute: AppRoutes.splash,
-      onGenerateRoute: RouteGenerator.generate,
+      theme: AppTheme.lightTheme,
+      home: const SplashScreen(),
     );
   }
 }
