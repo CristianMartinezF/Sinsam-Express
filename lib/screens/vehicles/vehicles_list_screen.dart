@@ -62,7 +62,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
             Expanded(
               child: ListView.separated(
                 itemCount: list.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (_, i) {
                   final v = list[i];
                   return ListTile(

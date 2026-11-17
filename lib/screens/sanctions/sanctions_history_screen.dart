@@ -24,7 +24,7 @@ class SanctionsHistoryScreen extends StatelessWidget {
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: sanctions.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, i) {
           final item = sanctions[i];
           return ListTile(

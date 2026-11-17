@@ -27,7 +27,7 @@ class SheetsListScreen extends StatelessWidget {
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: sheets.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (_, i) {
           final s = sheets[i];
           final badgeType = s.estado == 'Pagada'

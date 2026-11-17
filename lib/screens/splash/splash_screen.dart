@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: AppColors.navyPrimary,
       body: Center(
         child: Column(
@@ -33,11 +33,11 @@ class _SplashScreenState extends State<SplashScreen> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SinSamLogoIcon(size: 74),
-                const SizedBox(width: 14),
+                SinSamLogoIcon(size: 74),
+                SizedBox(width: 14),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'SinSam',
                       style: TextStyle(
@@ -60,13 +60,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 22),
-            const Text(
+            SizedBox(height: 22),
+            Text(
               'Transporte Mixto - Sincelejo - Sampues',
               style: TextStyle(color: Colors.white, fontSize: 13),
             ),
-            const SizedBox(height: 40),
-            const CircularProgressIndicator(color: Colors.white),
+            SizedBox(height: 40),
+            CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),
