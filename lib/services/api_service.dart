@@ -4,7 +4,7 @@ import '../models/app_models.dart';
 
 class ApiService {
   // CAMBIA ESTA URL POR LA DEL SERVIDOR (ej. http://10.0.2.2:8000/api para emulador Android)
-  static const String baseUrl = 'https://tu-api.sinsamexpress.com/api';
+  static const String baseUrl = 'https://api.sitram.cecar.cloud/api';
   static String? authToken;
 
   static Map<String, String> get headers => {
