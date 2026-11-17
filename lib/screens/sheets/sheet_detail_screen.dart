@@ -53,7 +53,7 @@ class SheetDetailScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               leading: const Icon(Icons.picture_as_pdf, color: AppColors.dangerText, size: 34),
               title: Text('planilla_${sheet.numero.replaceAll('#', '')}_${sheet.placa}.pdf', style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('Generado ${sheet.fecha} - 210 KB'),
+              subtitle: Text('Generado ${sheet.fecha}'),
             ),
             const SizedBox(height: 20),
             PrimaryButton(

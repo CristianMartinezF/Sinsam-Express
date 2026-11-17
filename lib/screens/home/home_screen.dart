@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 const Text('Buenos dias,', style: TextStyle(color: Colors.white70, fontSize: 13)),
                 const Text(
-                  'Maria Pedrozo',
+                  'SinSam Express',
                   style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
@@ -81,17 +81,31 @@ class HomeScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 10),
-                ...provider.dispatches.take(3).map(
-                      (d) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: _RecentDispatchCard(
-                          'Ruta ${d.ruta}',
-                          '${d.placa}  ${d.hora}',
-                          d.estado,
-                          d.estado == 'Despachado' ? BadgeType.success : BadgeType.warning,
+                if (provider.dispatches.isEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: const Text(
+                      'No hay despachos recientes registrados.',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    ),
+                  )
+                else
+                  ...provider.dispatches.take(3).map(
+                        (d) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _RecentDispatchCard(
+                            'Ruta ${d.ruta}',
+                            '${d.placa}  ${d.hora}',
+                            d.estado,
+                            d.estado == 'Despachado' ? BadgeType.success : BadgeType.warning,
+                          ),
                         ),
                       ),
-                    ),
               ],
             ),
           ),

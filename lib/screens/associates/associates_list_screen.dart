@@ -85,21 +85,26 @@ class _AssociatesListScreenState extends State<AssociatesListScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('"${_searchCtrl.text}" - Sin coincidencias', style: const TextStyle(fontWeight: FontWeight.w700)),
+                          Text(
+                            _searchCtrl.text.isEmpty ? 'Sin asociados registrados' : '"${_searchCtrl.text}" - Sin coincidencias',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           const SizedBox(height: 6),
                           const Text(
-                            'No encontramos asociados\nPrueba con otro nombre o otro numero de identificacion',
+                            'No encontramos asociados registrados\nPuedes agregar uno nuevo con el botón +',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                           ),
-                          const SizedBox(height: 14),
-                          OutlinedButton(
-                            onPressed: () {
-                              _searchCtrl.clear();
-                              setState(() => _filter = 'Todos');
-                            },
-                            child: const Text('Limpiar filtros'),
-                          ),
+                          if (_searchCtrl.text.isNotEmpty || _filter != 'Todos') ...[
+                            const SizedBox(height: 14),
+                            OutlinedButton(
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _filter = 'Todos');
+                              },
+                              child: const Text('Limpiar filtros'),
+                            ),
+                          ],
                         ],
                       ),
                     )
@@ -115,7 +120,7 @@ class _AssociatesListScreenState extends State<AssociatesListScreen> {
                             borderRadius: BorderRadius.circular(12),
                             side: const BorderSide(color: AppColors.border),
                           ),
-                          leading: CircleAvatar(child: Text(initials)),
+                          leading: CircleAvatar(child: Text(initials.isEmpty ? 'A' : initials)),
                           title: Text(item.nombre, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                           subtitle: Text('CC ${item.identificacion}', style: const TextStyle(fontSize: 12)),
                           trailing: StatusBadge(

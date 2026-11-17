@@ -17,8 +17,8 @@ class MoreMenuScreen extends StatelessWidget {
       ('Rutas Operativas', Icons.alt_route_rounded, () => Navigator.pushNamed(context, AppRoutes.routesList)),
       ('Tarifas y Aportes', Icons.attach_money_rounded, () => Navigator.pushNamed(context, AppRoutes.fares)),
       ('Despachos y Mis Viajes', Icons.departure_board_rounded, () => Navigator.pushNamed(context, AppRoutes.dispatches)),
-      ('Simular Error de Servidor (API)', Icons.wifi_off_rounded, () => context.read<AppProvider>().fetchInitialData(simulateError: true)),
-      ('Simular Sesión Expirada', Icons.lock_outline, () => Navigator.pushNamed(context, AppRoutes.sessionExpired)),
+      ('Recargar datos desde API', Icons.sync_rounded, () => context.read<AppProvider>().fetchInitialData()),
+      ('Cerrar sesión', Icons.logout_rounded, () => Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (r) => false)),
     ];
 
     return Scaffold(

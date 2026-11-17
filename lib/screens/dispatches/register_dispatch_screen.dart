@@ -14,10 +14,10 @@ class RegisterDispatchScreen extends StatefulWidget {
 }
 
 class _RegisterDispatchScreenState extends State<RegisterDispatchScreen> {
-  final _plateCtrl = TextEditingController(text: 'ABC-123');
-  final _dateCtrl = TextEditingController(text: '19/09/2026');
-  final _paxCtrl = TextEditingController(text: '14');
-  final _hourCtrl = TextEditingController(text: '09:30 a.m.');
+  final _plateCtrl = TextEditingController();
+  final _dateCtrl = TextEditingController();
+  final _paxCtrl = TextEditingController();
+  final _hourCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class _RegisterDispatchScreenState extends State<RegisterDispatchScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            CustomInput(label: 'Vehículo', hint: 'Seleccionar vehículo', controller: _plateCtrl),
+            CustomInput(label: 'Vehículo', hint: 'Ej. ABC-123', controller: _plateCtrl),
             const SizedBox(height: 12),
             CustomInput(label: 'Fecha', hint: 'dd/mm/aaaa', controller: _dateCtrl),
             const SizedBox(height: 12),
@@ -48,14 +48,15 @@ class _RegisterDispatchScreenState extends State<RegisterDispatchScreen> {
             PrimaryButton(
               text: 'Guardar',
               onPressed: () async {
+                if (_plateCtrl.text.trim().isEmpty) return;
                 final navigator = Navigator.of(context);
                 await context.read<AppProvider>().addDispatch(
                       DispatchModel(
                         id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        codigo: 'DSP-${1044 + DateTime.now().second}',
+                        codigo: 'DSP-${1000 + DateTime.now().second}',
                         ruta: 'Sincelejo - Sampués',
                         placa: _plateCtrl.text.trim().toUpperCase(),
-                        pasajeros: int.tryParse(_paxCtrl.text) ?? 10,
+                        pasajeros: int.tryParse(_paxCtrl.text) ?? 0,
                         fecha: _dateCtrl.text.trim(),
                         hora: _hourCtrl.text.trim(),
                         estado: 'Despachado',

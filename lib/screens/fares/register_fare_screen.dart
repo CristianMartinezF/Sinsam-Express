@@ -14,10 +14,10 @@ class RegisterFareScreen extends StatefulWidget {
 }
 
 class _RegisterFareScreenState extends State<RegisterFareScreen> {
-  final _nameCtrl = TextEditingController(text: 'Tarifa nueva 2026');
-  final _gastosCtrl = TextEditingController(text: '0');
-  final _fondoCtrl = TextEditingController(text: '0');
-  final _socialCtrl = TextEditingController(text: '0');
+  final _nameCtrl = TextEditingController();
+  final _gastosCtrl = TextEditingController();
+  final _fondoCtrl = TextEditingController();
+  final _socialCtrl = TextEditingController();
   bool _isActive = true;
 
   int get _total =>
@@ -33,7 +33,7 @@ class _RegisterFareScreenState extends State<RegisterFareScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            CustomInput(label: 'Nombre de tarifa', hint: 'Ej. Tarifa especial', controller: _nameCtrl),
+            CustomInput(label: 'Nombre de tarifa', hint: 'Ej. Tarifa estándar', controller: _nameCtrl),
             const SizedBox(height: 12),
             CustomInput(label: 'Aportes gastos varios', hint: '\$0', controller: _gastosCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
             const SizedBox(height: 12),
@@ -61,6 +61,7 @@ class _RegisterFareScreenState extends State<RegisterFareScreen> {
             PrimaryButton(
               text: 'Guardar',
               onPressed: () async {
+                if (_nameCtrl.text.trim().isEmpty) return;
                 final navigator = Navigator.of(context);
                 await context.read<AppProvider>().addFare(
                       FareModel(

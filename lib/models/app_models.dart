@@ -189,7 +189,7 @@ class VehicleModel {
     required this.marcaModelo,
     required this.capacidad,
     required this.conductor,
-    this.tarjetaPropiedad = 'TP-88213',
+    this.tarjetaPropiedad = '',
     required this.soat,
     required this.trm,
     required this.tarifa,

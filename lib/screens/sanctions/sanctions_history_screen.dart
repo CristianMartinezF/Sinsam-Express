@@ -21,26 +21,28 @@ class SanctionsHistoryScreen extends StatelessWidget {
         onPressed: () => Navigator.pushNamed(context, AppRoutes.registerSanction),
         child: const Icon(Icons.add),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: sanctions.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, i) {
-          final item = sanctions[i];
-          return ListTile(
-            tileColor: AppColors.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            title: Text(item.conductor, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-            subtitle: Text('${item.fechaInicio} - ${item.fechaFin}\nIdentificación: CC ${item.identificacion}', style: const TextStyle(fontSize: 12)),
-            isThreeLine: true,
-            trailing: StatusBadge(
-              label: item.estado,
-              type: item.estado == 'Vigente' ? BadgeType.success : BadgeType.warning,
+      body: sanctions.isEmpty
+          ? const Center(child: Text('No hay sanciones registradas.', style: TextStyle(color: AppColors.textSecondary)))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: sanctions.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, i) {
+                final item = sanctions[i];
+                return ListTile(
+                  tileColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  title: Text(item.conductor, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                  subtitle: Text('${item.fechaInicio} - ${item.fechaFin}\nIdentificación: CC ${item.identificacion}', style: const TextStyle(fontSize: 12)),
+                  isThreeLine: true,
+                  trailing: StatusBadge(
+                    label: item.estado,
+                    type: item.estado == 'Vigente' ? BadgeType.success : BadgeType.warning,
+                  ),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SanctionDetailScreen(sanction: item))),
+                );
+              },
             ),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SanctionDetailScreen(sanction: item))),
-          );
-        },
-      ),
     );
   }
 }

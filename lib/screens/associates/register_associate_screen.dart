@@ -18,7 +18,7 @@ class _RegisterAssociateScreenState extends State<RegisterAssociateScreen> {
   final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _birthCtrl = TextEditingController();
-  final _entryCtrl = TextEditingController(text: '19/09/2026');
+  final _entryCtrl = TextEditingController();
   final _plateCtrl = TextEditingController();
   bool _active = true;
 

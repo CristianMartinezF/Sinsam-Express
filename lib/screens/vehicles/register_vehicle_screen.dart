@@ -14,15 +14,15 @@ class RegisterVehicleScreen extends StatefulWidget {
 
 class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
   final _plateCtrl = TextEditingController();
-  final _driverCtrl = TextEditingController(text: 'Diego Torres Múnera');
-  final _typeCtrl = TextEditingController(text: 'Buseta');
-  final _capCtrl = TextEditingController(text: '19');
-  final _modelCtrl = TextEditingController(text: '2022');
+  final _driverCtrl = TextEditingController();
+  final _typeCtrl = TextEditingController();
+  final _capCtrl = TextEditingController();
+  final _modelCtrl = TextEditingController();
   final _brandCtrl = TextEditingController();
-  final _tpCtrl = TextEditingController(text: 'TP-99012');
-  final _fareCtrl = TextEditingController(text: 'Tarifa estandar \$8.500');
-  final _soatCtrl = TextEditingController(text: '22/03/2027');
-  final _trmCtrl = TextEditingController(text: '10/06/2027');
+  final _tpCtrl = TextEditingController();
+  final _fareCtrl = TextEditingController();
+  final _soatCtrl = TextEditingController();
+  final _trmCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
           children: [
             CustomInput(label: 'Placa', hint: 'Ej. ABC-123', controller: _plateCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Conductor asignado', hint: 'Seleccionar', controller: _driverCtrl),
+            CustomInput(label: 'Conductor asignado', hint: 'Nombre del conductor', controller: _driverCtrl),
             const SizedBox(height: 12),
             CustomInput(label: 'Tipo', hint: 'Buseta / Automóvil', controller: _typeCtrl),
             const SizedBox(height: 12),
@@ -64,7 +64,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
                         placa: _plateCtrl.text.trim().toUpperCase(),
                         tipo: _typeCtrl.text.trim(),
                         marcaModelo: '${_brandCtrl.text.trim()} ${_modelCtrl.text.trim()}',
-                        capacidad: int.tryParse(_capCtrl.text) ?? 15,
+                        capacidad: int.tryParse(_capCtrl.text) ?? 0,
                         conductor: _driverCtrl.text.trim(),
                         tarjetaPropiedad: _tpCtrl.text.trim(),
                         soat: _soatCtrl.text.trim(),

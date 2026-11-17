@@ -24,34 +24,36 @@ class SheetsListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: sheets.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, i) {
-          final s = sheets[i];
-          final badgeType = s.estado == 'Pagada'
-              ? BadgeType.success
-              : s.estado == 'Pendiente'
-                  ? BadgeType.warning
-                  : BadgeType.danger;
+      body: sheets.isEmpty
+          ? const Center(child: Text('No hay planillas registradas.', style: TextStyle(color: AppColors.textSecondary)))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: sheets.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, i) {
+                final s = sheets[i];
+                final badgeType = s.estado == 'Pagada'
+                    ? BadgeType.success
+                    : s.estado == 'Pendiente'
+                        ? BadgeType.warning
+                        : BadgeType.danger;
 
-          return ListTile(
-            tileColor: AppColors.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            title: Text('Planilla ${s.numero}  •  ${s.placa}', style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text('${s.fecha} • \$${s.valor}'),
-            trailing: StatusBadge(label: s.estado, type: badgeType),
-            onTap: () {
-              if (s.estado == 'Pendiente') {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => SheetPaymentScreen(sheet: s)));
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => SheetDetailScreen(sheet: s)));
-              }
-            },
-          );
-        },
-      ),
+                return ListTile(
+                  tileColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  title: Text('Planilla ${s.numero}  •  ${s.placa}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('${s.fecha} • \$${s.valor}'),
+                  trailing: StatusBadge(label: s.estado, type: badgeType),
+                  onTap: () {
+                    if (s.estado == 'Pendiente') {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => SheetPaymentScreen(sheet: s)));
+                    } else {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => SheetDetailScreen(sheet: s)));
+                    }
+                  },
+                );
+              },
+            ),
     );
   }
 }

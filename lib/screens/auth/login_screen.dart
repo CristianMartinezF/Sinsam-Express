@@ -16,23 +16,31 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userCtrl = TextEditingController(text: 'usuario@gmail.com');
-  final _passCtrl = TextEditingController(text: '12345678');
+  final _userCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
 
   Future<void> _handleLogin() async {
     setState(() => _loading = true);
-    final ok = await ApiService.login(_userCtrl.text.trim(), _passCtrl.text);
-    if (!mounted) return;
-    setState(() => _loading = false);
+    try {
+      final ok = await ApiService.login(_userCtrl.text.trim(), _passCtrl.text);
+      if (!mounted) return;
+      setState(() => _loading = false);
 
-    if (ok) {
-      context.read<AppProvider>().fetchInitialData();
-      Navigator.pushReplacementNamed(context, AppRoutes.mainNav);
-    } else {
+      if (ok) {
+        context.read<AppProvider>().fetchInitialData();
+        Navigator.pushReplacementNamed(context, AppRoutes.mainNav);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Credenciales incorrectas')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Credenciales incorrectas')),
+        const SnackBar(content: Text('Error de conexión con el servidor')),
       );
     }
   }

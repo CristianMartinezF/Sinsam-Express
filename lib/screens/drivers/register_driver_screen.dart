@@ -19,7 +19,7 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
   final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _licCtrl = TextEditingController();
-  final _catCtrl = TextEditingController(text: 'C2');
+  final _catCtrl = TextEditingController();
   final _expCtrl = TextEditingController();
 
   @override

@@ -12,7 +12,31 @@ class DriverDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final driver = context.watch<AppProvider>().drivers.first;
+    final drivers = context.watch<AppProvider>().drivers;
+    if (drivers.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Detalle del conductor')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('No hay conductores registrados aún.', style: TextStyle(color: AppColors.textSecondary)),
+                const SizedBox(height: 16),
+                PrimaryButton(
+                  text: 'Registrar conductor',
+                  onPressed: () => Navigator.pushNamed(context, AppRoutes.registerDriver),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final driver = drivers.first;
+    final initials = driver.nombre.trim().split(' ').take(2).map((s) => s.isNotEmpty ? s[0] : '').join().toUpperCase();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle del conductor')),
@@ -24,7 +48,7 @@ class DriverDetailScreen extends StatelessWidget {
             ListTile(
               tileColor: AppColors.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              leading: const CircleAvatar(child: Text('DT')),
+              leading: CircleAvatar(child: Text(initials.isEmpty ? 'C' : initials)),
               title: Text(driver.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Align(
                 alignment: Alignment.centerLeft,
@@ -44,7 +68,7 @@ class DriverDetailScreen extends StatelessWidget {
                   border: Border.all(color: AppColors.dangerText.withValues(alpha: 0.3)),
                 ),
                 child: const Text(
-                  'Sancionado hasta 28/08/2026\nNo puede ser asignado a operaciones de transporte mientras la sanción esté vigente.',
+                  'Conductor sancionado\nNo puede ser asignado a operaciones de transporte mientras la sanción esté vigente.',
                   style: TextStyle(color: AppColors.dangerText, fontSize: 12, fontWeight: FontWeight.w500),
                 ),
               ),

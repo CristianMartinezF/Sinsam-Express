@@ -44,7 +44,6 @@ class SanctionDetailScreen extends StatelessWidget {
                   const Divider(),
                   _SRow('Motivo', sanction.motivo),
                   _SRow('Observaciones', sanction.observaciones.isEmpty ? 'Sin observaciones' : sanction.observaciones),
-                  const _SRow('Registrado por', 'Laura Restrepo (Gerente)'),
                 ],
               ),
             ),

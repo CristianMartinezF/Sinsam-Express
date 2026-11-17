@@ -57,8 +57,9 @@ class _EditDriverScreenState extends State<EditDriverScreen> {
             const SizedBox(height: 22),
             PrimaryButton(
               text: 'Guardar cambios',
-              onPressed: () {
-                context.read<AppProvider>().updateDriver(
+              onPressed: () async {
+                final navigator = Navigator.of(context);
+                await context.read<AppProvider>().updateDriver(
                       DriverModel(
                         id: widget.driver.id,
                         identificacion: widget.driver.identificacion,
@@ -72,7 +73,7 @@ class _EditDriverScreenState extends State<EditDriverScreen> {
                         estado: _stateCtrl.text.trim(),
                       ),
                     );
-                Navigator.pop(context);
+                navigator.pop();
               },
             ),
             const SizedBox(height: 10),

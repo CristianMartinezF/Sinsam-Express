@@ -50,8 +50,9 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
             const Spacer(),
             PrimaryButton(
               text: 'Guardar',
-              onPressed: () {
-                context.read<AppProvider>().updateVehicle(
+              onPressed: () async {
+                final navigator = Navigator.of(context);
+                await context.read<AppProvider>().updateVehicle(
                       VehicleModel(
                         id: widget.vehicle.id,
                         placa: widget.vehicle.placa,
@@ -66,7 +67,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
                         estado: _stateCtrl.text.trim(),
                       ),
                     );
-                Navigator.pop(context);
+                navigator.pop();
               },
             ),
             const SizedBox(height: 10),

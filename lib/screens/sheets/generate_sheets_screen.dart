@@ -13,12 +13,18 @@ class GenerateSheetsScreen extends StatefulWidget {
 }
 
 class _GenerateSheetsScreenState extends State<GenerateSheetsScreen> {
-  final _dateCtrl = TextEditingController(text: '19/09/2026');
-  final Map<String, bool> _selected = {
-    'ABC-123 Diego Torres': true,
-    'DEF-456 Carlos Andrade': true,
-    'JKL-321 Luis Pardo': true,
-  };
+  final _dateCtrl = TextEditingController();
+  final Map<String, bool> _selected = {};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final vehicles = context.read<AppProvider>().vehicles;
+    for (final v in vehicles) {
+      final key = '${v.placa} ${v.conductor}';
+      _selected.putIfAbsent(key, () => v.estado == 'Activa');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,27 +36,35 @@ class _GenerateSheetsScreenState extends State<GenerateSheetsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomInput(label: 'Fecha', hint: '19/09/2026', controller: _dateCtrl),
+            CustomInput(label: 'Fecha', hint: 'dd/mm/aaaa', controller: _dateCtrl),
             const SizedBox(height: 12),
             const CustomInput(label: 'Tipo de planilla', hint: 'Diaria'),
             const SizedBox(height: 12),
-            const CustomInput(label: 'Tarifa a aplicar', hint: 'Tarifa estándar \$5.500'),
+            const CustomInput(label: 'Tarifa a aplicar', hint: 'Tarifa estándar'),
             const SizedBox(height: 16),
             Text('VEHÍCULOS (${activeList.length} SELECCIONADOS)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-            ..._selected.keys.map((k) => CheckboxListTile(
-                  title: Text(k, style: const TextStyle(fontSize: 13)),
-                  value: _selected[k],
-                  onChanged: (v) => setState(() => _selected[k] = v ?? false),
-                )),
-            const CheckboxListTile(
-              title: Text('GHI-789 En mantenimiento', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
-              value: false,
-              onChanged: null,
-            ),
-            const Spacer(),
+            if (_selected.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text('No hay vehículos disponibles desde la API.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              )
+            else
+              Expanded(
+                child: ListView(
+                  children: _selected.keys
+                      .map((k) => CheckboxListTile(
+                            title: Text(k, style: const TextStyle(fontSize: 13)),
+                            value: _selected[k],
+                            onChanged: (v) => setState(() => _selected[k] = v ?? false),
+                          ))
+                      .toList(),
+                ),
+              ),
+            if (_selected.isEmpty) const Spacer(),
             PrimaryButton(
               text: 'Generar ${activeList.length} planillas',
               onPressed: () {
+                if (activeList.isEmpty) return;
                 context.read<AppProvider>().generateSheets(activeList, _dateCtrl.text, 5500);
                 Navigator.pop(context);
               },

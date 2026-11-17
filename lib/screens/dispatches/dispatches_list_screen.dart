@@ -21,25 +21,27 @@ class DispatchesListScreen extends StatelessWidget {
         onPressed: () => Navigator.pushNamed(context, AppRoutes.registerDispatch),
         child: const Icon(Icons.add),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: dispatches.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, i) {
-          final d = dispatches[i];
-          return ListTile(
-            tileColor: AppColors.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            title: Text(d.ruta, style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text('${d.placa}  •  ${d.hora}'),
-            trailing: StatusBadge(
-              label: d.estado,
-              type: d.estado == 'Despachado' ? BadgeType.success : BadgeType.warning,
+      body: dispatches.isEmpty
+          ? const Center(child: Text('No hay despachos registrados.', style: TextStyle(color: AppColors.textSecondary)))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: dispatches.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, i) {
+                final d = dispatches[i];
+                return ListTile(
+                  tileColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  title: Text(d.ruta, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('${d.placa}  •  ${d.hora}'),
+                  trailing: StatusBadge(
+                    label: d.estado,
+                    type: d.estado == 'Despachado' ? BadgeType.success : BadgeType.warning,
+                  ),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DispatchDetailScreen(dispatch: d))),
+                );
+              },
             ),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DispatchDetailScreen(dispatch: d))),
-          );
-        },
-      ),
     );
   }
 }

@@ -8,7 +8,6 @@ class VerifyCodeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const digits = ['4', '6', '1', '7', '', ''];
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(title: const Text('Verificar codigo')),
@@ -19,7 +18,7 @@ class VerifyCodeScreen extends StatelessWidget {
             const Text('Revisa tu correo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             const Text(
-              'Enviamos un codigo de 6 digitos a\nn***@gmail.com',
+              'Enviamos un codigo de 6 digitos a\ntu correo registrado',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
@@ -31,9 +30,9 @@ class VerifyCodeScreen extends StatelessWidget {
                 (i) => SizedBox(
                   width: 44,
                   child: TextField(
-                    controller: TextEditingController(text: digits[i]),
                     textAlign: TextAlign.center,
                     maxLength: 1,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       counterText: '',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),

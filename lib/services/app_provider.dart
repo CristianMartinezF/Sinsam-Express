@@ -7,117 +7,13 @@ class AppProvider extends ChangeNotifier {
   bool hasServerError = false;
 
   List<AssociateModel> associates = [];
-  List<AffiliationModel> affiliations = [
-    AffiliationModel(
-      id: '1',
-      codigo: 'AF-8989',
-      asociado: 'Maria Corrales Pedrozo',
-      vehiculo: 'ABD-432',
-      fechaInicio: '03/02/2021',
-      vigente: true,
-    ),
-    AffiliationModel(
-      id: '2',
-      codigo: 'AF-9012',
-      asociado: 'Luis Adrian Berrio',
-      vehiculo: 'HDR-765',
-      fechaInicio: '21/06/2022',
-      vigente: true,
-    ),
-  ];
-
-  List<DriverModel> drivers = [
-    DriverModel(
-      id: '1',
-      identificacion: '1.002.334.552',
-      nombre: 'Diego Torres Múnera',
-      fechaNacimiento: '30/09/1990',
-      celular: '301 458 7890',
-      correo: 'diego.torres@mail.com',
-      numeroLicencia: '70234456',
-      categoria: 'C2',
-      vigenciaLicencia: '15/03/2028',
-      estado: 'Sancionado',
-    ),
-  ];
-
-  List<SanctionModel> sanctions = [
-    SanctionModel(
-      id: '1',
-      conductor: 'Diego Torres Múnera',
-      identificacion: '1.002.334.552',
-      fechaInicio: '19/08/2026',
-      fechaFin: '26/09/2026',
-      motivo: 'Documentación vencida',
-      observaciones: 'Se solicitó actualizar SOAT y licencia.',
-      estado: 'Vigente',
-    ),
-  ];
-
+  List<AffiliationModel> affiliations = [];
+  List<DriverModel> drivers = [];
+  List<SanctionModel> sanctions = [];
   List<VehicleModel> vehicles = [];
-
-  List<FareModel> fares = [
-    FareModel(
-      id: '1',
-      nombre: 'Tarifa estandar',
-      gastosVarios: 2000,
-      fondoReposicion: 2500,
-      aporteSocial: 1000,
-      activa: true,
-    ),
-    FareModel(
-      id: '2',
-      nombre: 'Tarifa preferencial',
-      gastosVarios: 1500,
-      fondoReposicion: 2000,
-      aporteSocial: 1000,
-      activa: true,
-    ),
-  ];
-
-  List<SheetModel> sheets = [
-    SheetModel(
-      id: '1',
-      numero: '#0314',
-      placa: 'ABC-123',
-      conductor: 'Diego Torres Múnera',
-      fecha: '18/09/2026 - 07:40 a.m.',
-      valor: 5500,
-      estado: 'Pagada',
-    ),
-    SheetModel(
-      id: '2',
-      numero: '#0232',
-      placa: 'DEF-456',
-      conductor: 'Carlos Andrade',
-      fecha: '19/09/2026 - 08:10 a.m.',
-      valor: 5500,
-      estado: 'Pendiente',
-    ),
-  ];
-
-  List<DispatchModel> dispatches = [
-    DispatchModel(
-      id: '1',
-      codigo: 'DSP-1042',
-      ruta: 'Sincelejo - Sampués',
-      placa: 'ABC-123',
-      pasajeros: 14,
-      fecha: '19/09/2026',
-      hora: '07:40 a.m.',
-      estado: 'Despachado',
-    ),
-    DispatchModel(
-      id: '2',
-      codigo: 'DSP-1043',
-      ruta: 'Sampués - Sincelejo',
-      placa: 'DEF-456',
-      pasajeros: 11,
-      fecha: '19/09/2026',
-      hora: '08:10 a.m.',
-      estado: 'Programado',
-    ),
-  ];
+  List<FareModel> fares = [];
+  List<SheetModel> sheets = [];
+  List<DispatchModel> dispatches = [];
 
   Future<void> fetchInitialData({bool simulateError = false}) async {
     isLoading = true;
@@ -126,11 +22,28 @@ class AppProvider extends ChangeNotifier {
 
     try {
       if (simulateError) {
-        await Future.delayed(const Duration(milliseconds: 500));
         throw Exception('Simulated network error');
       }
-      associates = await ApiService.getAssociates();
-      vehicles = await ApiService.getVehicles();
+
+      final results = await Future.wait([
+        ApiService.getAssociates(),
+        ApiService.getAffiliations(),
+        ApiService.getDrivers(),
+        ApiService.getSanctions(),
+        ApiService.getVehicles(),
+        ApiService.getFares(),
+        ApiService.getSheets(),
+        ApiService.getDispatches(),
+      ]);
+
+      associates = results[0] as List<AssociateModel>;
+      affiliations = results[1] as List<AffiliationModel>;
+      drivers = results[2] as List<DriverModel>;
+      sanctions = results[3] as List<SanctionModel>;
+      vehicles = results[4] as List<VehicleModel>;
+      fares = results[5] as List<FareModel>;
+      sheets = results[6] as List<SheetModel>;
+      dispatches = results[7] as List<DispatchModel>;
     } catch (_) {
       hasServerError = true;
     } finally {
@@ -154,11 +67,11 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  void toggleAssociateStatus(String id) {
+  Future<void> toggleAssociateStatus(String id) async {
     final idx = associates.indexWhere((a) => a.id == id);
     if (idx != -1) {
       final old = associates[idx];
-      associates[idx] = AssociateModel(
+      final updated = AssociateModel(
         id: old.id,
         identificacion: old.identificacion,
         nombre: old.nombre,
@@ -169,7 +82,7 @@ class AppProvider extends ChangeNotifier {
         placaVehiculo: old.placaVehiculo,
         activo: !old.activo,
       );
-      notifyListeners();
+      await editAssociate(updated);
     }
   }
 
@@ -183,7 +96,7 @@ class AppProvider extends ChangeNotifier {
         asociado: old.asociado,
         vehiculo: old.vehiculo,
         fechaInicio: old.fechaInicio,
-        fechaFin: '19/09/2026',
+        fechaFin: DateTime.now().toString().split(' ').first,
         vigente: false,
       );
       notifyListeners();
@@ -196,10 +109,11 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateDriver(DriverModel updated) {
-    final idx = drivers.indexWhere((d) => d.id == updated.id);
+  Future<void> updateDriver(DriverModel updated) async {
+    final res = await ApiService.updateDriver(updated);
+    final idx = drivers.indexWhere((d) => d.id == res.id);
     if (idx != -1) {
-      drivers[idx] = updated;
+      drivers[idx] = res;
       notifyListeners();
     }
   }
@@ -232,10 +146,11 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateVehicle(VehicleModel updated) {
-    final idx = vehicles.indexWhere((v) => v.id == updated.id);
+  Future<void> updateVehicle(VehicleModel updated) async {
+    final res = await ApiService.updateVehicle(updated);
+    final idx = vehicles.indexWhere((v) => v.id == res.id);
     if (idx != -1) {
-      vehicles[idx] = updated;
+      vehicles[idx] = res;
       notifyListeners();
     }
   }
@@ -264,7 +179,7 @@ class AppProvider extends ChangeNotifier {
 
   void generateSheets(List<String> placas, String fecha, int valor) {
     for (final placa in placas) {
-      final num = 315 + sheets.length;
+      final num = 1 + sheets.length;
       sheets.insert(
         0,
         SheetModel(

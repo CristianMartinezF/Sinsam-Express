@@ -31,7 +31,7 @@ class SheetPaymentScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const CustomInput(label: 'Fecha de pago', hint: '19/09/2026'),
+            const CustomInput(label: 'Fecha de pago', hint: 'dd/mm/aaaa'),
             const SizedBox(height: 12),
             const CustomInput(label: 'Método de pago', hint: 'Efectivo'),
             const Spacer(),

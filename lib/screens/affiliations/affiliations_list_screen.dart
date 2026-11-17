@@ -44,27 +44,29 @@ class _AffiliationsListScreenState extends State<AffiliationsListScreen> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: ListView.separated(
-                itemCount: list.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (_, i) {
-                  final aff = list[i];
-                  return ListTile(
-                    tileColor: AppColors.surface,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    title: Text('${aff.asociado} • ${aff.vehiculo}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: Text(aff.vigente ? 'Desde ${aff.fechaInicio}' : '${aff.fechaInicio} - ${aff.fechaFin}'),
-                    trailing: StatusBadge(
-                      label: aff.vigente ? 'Vigente' : 'Finalizada',
-                      type: aff.vigente ? BadgeType.success : BadgeType.danger,
+              child: list.isEmpty
+                  ? const Center(child: Text('No hay afiliaciones registradas.', style: TextStyle(color: AppColors.textSecondary)))
+                  : ListView.separated(
+                      itemCount: list.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (_, i) {
+                        final aff = list[i];
+                        return ListTile(
+                          tileColor: AppColors.surface,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          title: Text('${aff.asociado} • ${aff.vehiculo}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text(aff.vigente ? 'Desde ${aff.fechaInicio}' : '${aff.fechaInicio} - ${aff.fechaFin}'),
+                          trailing: StatusBadge(
+                            label: aff.vigente ? 'Vigente' : 'Finalizada',
+                            type: aff.vigente ? BadgeType.success : BadgeType.danger,
+                          ),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => AffiliationDetailScreen(affiliationId: aff.id)),
+                          ),
+                        );
+                      },
                     ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => AffiliationDetailScreen(affiliationId: aff.id)),
-                    ),
-                  );
-                },
-              ),
             ),
           ],
         ),

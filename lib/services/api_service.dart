@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/app_models.dart';
 
 class ApiService {
-  // MAÑANA CON TU PROFESOR CAMBIA ESTA URL POR LA DEL SERVIDOR (ej. http://10.0.2.2:8000/api)
+  // CAMBIA ESTA URL POR LA DEL SERVIDOR (ej. http://10.0.2.2:8000/api para emulador Android)
   static const String baseUrl = 'https://tu-api.sinsamexpress.com/api';
   static String? authToken;
 
@@ -15,7 +15,6 @@ class ApiService {
 
   // ==================== AUTENTICACIÓN ====================
   static Future<bool> login(String email, String password) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: headers,
@@ -27,61 +26,19 @@ class ApiService {
       return true;
     }
     return false;
-    */
-    await Future.delayed(const Duration(milliseconds: 400));
-    authToken = 'mock_jwt_token_sinsam';
-    return true;
   }
 
   // ==================== ASOCIADOS ====================
   static Future<List<AssociateModel>> getAssociates() async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.get(Uri.parse('$baseUrl/asociados'), headers: headers);
     if (response.statusCode == 200) {
       final List list = jsonDecode(response.body);
       return list.map((e) => AssociateModel.fromJson(e)).toList();
     }
-    throw Exception('Error al cargar asociados');
-    */
-    await Future.delayed(const Duration(milliseconds: 500));
-    return [
-      AssociateModel(
-        id: '1',
-        identificacion: '1.049.317.455',
-        nombre: 'Maria Corrales Pedrozo',
-        celular: '300 364 1210',
-        correo: 'Maria.corrales@gmail.com',
-        fechaNacimiento: '07/24/2008',
-        fechaIngreso: '03/02/2021',
-        placaVehiculo: 'ABD-432',
-        activo: true,
-      ),
-      AssociateModel(
-        id: '2',
-        identificacion: '1.004.645.677',
-        nombre: 'Luis Adrian Berrio',
-        celular: '310 445 6789',
-        correo: 'luis.berrio@gmail.com',
-        fechaNacimiento: '14/08/1988',
-        fechaIngreso: '21/06/2022',
-        placaVehiculo: 'HDR-765',
-        activo: true,
-      ),
-      AssociateModel(
-        id: '3',
-        identificacion: '1.884.496.317',
-        nombre: 'Diomar Monroy',
-        celular: '312 889 1122',
-        correo: 'diomar.monroy@gmail.com',
-        fechaNacimiento: '02/11/1985',
-        fechaIngreso: '01/01/2019',
-        activo: false,
-      ),
-    ];
+    throw Exception('Error al cargar asociados (${response.statusCode})');
   }
 
   static Future<AssociateModel> createAssociate(AssociateModel item) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.post(
       Uri.parse('$baseUrl/asociados'),
       headers: headers,
@@ -91,126 +48,171 @@ class ApiService {
       return AssociateModel.fromJson(jsonDecode(response.body));
     }
     throw Exception('Error al crear asociado');
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
   }
 
   static Future<AssociateModel> updateAssociate(AssociateModel item) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.put(
       Uri.parse('$baseUrl/asociados/${item.id}'),
       headers: headers,
       body: jsonEncode(item.toJson()),
     );
-    return AssociateModel.fromJson(jsonDecode(response.body));
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
+    if (response.statusCode == 200) {
+      return AssociateModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al actualizar asociado');
   }
 
-  // ==================== VEHÍCULOS ====================
-  static Future<List<VehicleModel>> getVehicles() async {
-    /* DESCOMENTAR PARA API REAL:
-    final response = await http.get(Uri.parse('$baseUrl/vehiculos'), headers: headers);
-    final List list = jsonDecode(response.body);
-    return list.map((e) => VehicleModel.fromJson(e)).toList();
-    */
-    await Future.delayed(const Duration(milliseconds: 400));
-    return [
-      VehicleModel(
-        id: '1',
-        placa: 'ABC-123',
-        tipo: 'Buseta',
-        marcaModelo: 'Chevrolet NPR 2019',
-        capacidad: 19,
-        conductor: 'Diego Torres Múnera',
-        soat: '22/03/2027',
-        trm: '10/06/2027',
-        tarifa: 'Tarifa estandar \$8.500',
-        estado: 'Activa',
-      ),
-      VehicleModel(
-        id: '2',
-        placa: 'DEF-456',
-        tipo: 'Automovil',
-        marcaModelo: 'Renault Logan 2021',
-        capacidad: 4,
-        conductor: 'Luis Pardo Gómez',
-        soat: '15/11/2026',
-        trm: '20/12/2026',
-        tarifa: 'Tarifa estandar \$8.500',
-        estado: 'Activa',
-      ),
-    ];
-  }
-
-  static Future<VehicleModel> createVehicle(VehicleModel item) async {
-    /* DESCOMENTAR PARA API REAL:
-    final response = await http.post(
-      Uri.parse('$baseUrl/vehiculos'),
-      headers: headers,
-      body: jsonEncode(item.toJson()),
-    );
-    return VehicleModel.fromJson(jsonDecode(response.body));
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
+  // ==================== AFILIACIONES ====================
+  static Future<List<AffiliationModel>> getAffiliations() async {
+    final response = await http.get(Uri.parse('$baseUrl/afiliaciones'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => AffiliationModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar afiliaciones');
   }
 
   // ==================== CONDUCTORES ====================
+  static Future<List<DriverModel>> getDrivers() async {
+    final response = await http.get(Uri.parse('$baseUrl/conductores'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => DriverModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar conductores');
+  }
+
   static Future<DriverModel> createDriver(DriverModel item) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.post(
       Uri.parse('$baseUrl/conductores'),
       headers: headers,
       body: jsonEncode(item.toJson()),
     );
-    return DriverModel.fromJson(jsonDecode(response.body));
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return DriverModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al registrar conductor');
+  }
+
+  static Future<DriverModel> updateDriver(DriverModel item) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/conductores/${item.id}'),
+      headers: headers,
+      body: jsonEncode(item.toJson()),
+    );
+    if (response.statusCode == 200) {
+      return DriverModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al actualizar conductor');
   }
 
   // ==================== SANCIONES ====================
+  static Future<List<SanctionModel>> getSanctions() async {
+    final response = await http.get(Uri.parse('$baseUrl/sanciones'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => SanctionModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar sanciones');
+  }
+
   static Future<SanctionModel> createSanction(SanctionModel item) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.post(
       Uri.parse('$baseUrl/sanciones'),
       headers: headers,
       body: jsonEncode(item.toJson()),
     );
-    return SanctionModel.fromJson(jsonDecode(response.body));
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return SanctionModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al registrar sanción');
+  }
+
+  // ==================== VEHÍCULOS ====================
+  static Future<List<VehicleModel>> getVehicles() async {
+    final response = await http.get(Uri.parse('$baseUrl/vehiculos'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => VehicleModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar vehículos');
+  }
+
+  static Future<VehicleModel> createVehicle(VehicleModel item) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/vehiculos'),
+      headers: headers,
+      body: jsonEncode(item.toJson()),
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return VehicleModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al registrar vehículo');
+  }
+
+  static Future<VehicleModel> updateVehicle(VehicleModel item) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/vehiculos/${item.id}'),
+      headers: headers,
+      body: jsonEncode(item.toJson()),
+    );
+    if (response.statusCode == 200) {
+      return VehicleModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al actualizar vehículo');
   }
 
   // ==================== TARIFAS ====================
+  static Future<List<FareModel>> getFares() async {
+    final response = await http.get(Uri.parse('$baseUrl/tarifas'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => FareModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar tarifas');
+  }
+
   static Future<FareModel> createFare(FareModel item) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.post(
       Uri.parse('$baseUrl/tarifas'),
       headers: headers,
       body: jsonEncode(item.toJson()),
     );
-    return FareModel.fromJson(jsonDecode(response.body));
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return FareModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al crear tarifa');
+  }
+
+  // ==================== PLANILLAS ====================
+  static Future<List<SheetModel>> getSheets() async {
+    final response = await http.get(Uri.parse('$baseUrl/planillas'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => SheetModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar planillas');
   }
 
   // ==================== DESPACHOS ====================
+  static Future<List<DispatchModel>> getDispatches() async {
+    final response = await http.get(Uri.parse('$baseUrl/despachos'), headers: headers);
+    if (response.statusCode == 200) {
+      final List list = jsonDecode(response.body);
+      return list.map((e) => DispatchModel.fromJson(e)).toList();
+    }
+    throw Exception('Error al cargar despachos');
+  }
+
   static Future<DispatchModel> createDispatch(DispatchModel item) async {
-    /* DESCOMENTAR PARA API REAL:
     final response = await http.post(
       Uri.parse('$baseUrl/despachos'),
       headers: headers,
       body: jsonEncode(item.toJson()),
     );
-    return DispatchModel.fromJson(jsonDecode(response.body));
-    */
-    await Future.delayed(const Duration(milliseconds: 300));
-    return item;
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return DispatchModel.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('Error al registrar despacho');
   }
 }

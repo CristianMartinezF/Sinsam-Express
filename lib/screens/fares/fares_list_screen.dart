@@ -23,26 +23,28 @@ class FaresListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: fares.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, i) {
-          final f = fares[i];
-          return ListTile(
-            tileColor: AppColors.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            leading: const CircleAvatar(child: Text('\$')),
-            title: Text(f.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text('Total: \$${f.total}'),
-            trailing: StatusBadge(
-              label: f.activa ? 'Activo' : 'Inactiva',
-              type: f.activa ? BadgeType.success : BadgeType.danger,
+      body: fares.isEmpty
+          ? const Center(child: Text('No hay tarifas registradas.', style: TextStyle(color: AppColors.textSecondary)))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: fares.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, i) {
+                final f = fares[i];
+                return ListTile(
+                  tileColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  leading: const CircleAvatar(child: Text('\$')),
+                  title: Text(f.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('Total: \$${f.total}'),
+                  trailing: StatusBadge(
+                    label: f.activa ? 'Activo' : 'Inactiva',
+                    type: f.activa ? BadgeType.success : BadgeType.danger,
+                  ),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FareDetailScreen(fareId: f.id))),
+                );
+              },
             ),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FareDetailScreen(fareId: f.id))),
-          );
-        },
-      ),
     );
   }
 }

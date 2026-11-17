@@ -22,9 +22,9 @@ class VehicleMaintenanceScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _MRow('Vehiculo', '${vehicle.placa} ${vehicle.tipo}'),
-                  const _MRow('Fecha de ingreso', '19/09/2026'),
-                  const _MRow('Motivo de mantenimiento', 'Cambio de frenos y revision general'),
-                  const _MRow('Observaciones', 'Se reporta ruido en frenos traseros'),
+                  const _MRow('Fecha de ingreso', '-'),
+                  const _MRow('Motivo de mantenimiento', 'Revisión preventiva'),
+                  const _MRow('Observaciones', 'Sin observaciones'),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

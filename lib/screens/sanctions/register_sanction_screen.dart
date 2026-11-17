@@ -14,10 +14,11 @@ class RegisterSanctionScreen extends StatefulWidget {
 }
 
 class _RegisterSanctionScreenState extends State<RegisterSanctionScreen> {
-  final _driverCtrl = TextEditingController(text: 'Diego Torres Múnera');
-  final _startCtrl = TextEditingController(text: '19/09/2026');
-  final _endCtrl = TextEditingController(text: '28/09/2026');
-  final _reasonCtrl = TextEditingController(text: 'Documentacion vencida');
+  final _driverCtrl = TextEditingController();
+  final _idCtrl = TextEditingController();
+  final _startCtrl = TextEditingController();
+  final _endCtrl = TextEditingController();
+  final _reasonCtrl = TextEditingController();
   final _obsCtrl = TextEditingController();
 
   void _confirmSanction(BuildContext context) {
@@ -41,7 +42,7 @@ class _RegisterSanctionScreenState extends State<RegisterSanctionScreen> {
                     SanctionModel(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       conductor: _driverCtrl.text.trim(),
-                      identificacion: '1.002.334.552',
+                      identificacion: _idCtrl.text.trim(),
                       fechaInicio: _startCtrl.text.trim(),
                       fechaFin: _endCtrl.text.trim(),
                       motivo: _reasonCtrl.text.trim(),
@@ -67,18 +68,20 @@ class _RegisterSanctionScreenState extends State<RegisterSanctionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomInput(label: 'Conductor', hint: 'Diego Torres Munera', controller: _driverCtrl),
+            CustomInput(label: 'Conductor', hint: 'Nombre completo del conductor', controller: _driverCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Fecha inicial', hint: '19/09/2026', controller: _startCtrl),
+            CustomInput(label: 'Identificación', hint: 'Número de documento', controller: _idCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Fecha final', hint: '28/09/2026', controller: _endCtrl),
+            CustomInput(label: 'Fecha inicial', hint: 'dd/mm/aaaa', controller: _startCtrl),
+            const SizedBox(height: 12),
+            CustomInput(label: 'Fecha final', hint: 'dd/mm/aaaa', controller: _endCtrl),
             const SizedBox(height: 6),
             const Text(
               'La fecha final debe ser igual o posterior a la inicial.',
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
-            CustomInput(label: 'Motivo de la sanción', hint: 'Documentacion vencida', controller: _reasonCtrl),
+            CustomInput(label: 'Motivo de la sanción', hint: 'Ej. Documentación vencida', controller: _reasonCtrl),
             const SizedBox(height: 12),
             CustomInput(label: 'Observaciones (opcional)', hint: 'Añadir observaciones...', maxLines: 3, controller: _obsCtrl),
             const SizedBox(height: 22),

@@ -50,7 +50,6 @@ class AssociateDetailScreen extends StatelessWidget {
             _card([
               _row('Fecha de ingreso', item.fechaIngreso),
               _row('Vehículo vinculado', item.placaVehiculo.isEmpty ? 'Sin asignar' : item.placaVehiculo),
-              _row('Ultima actualizacion', '19/09/2026'),
             ]),
             const SizedBox(height: 22),
             PrimaryButton(
