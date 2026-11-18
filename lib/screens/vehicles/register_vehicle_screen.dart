@@ -14,7 +14,6 @@ class RegisterVehicleScreen extends StatefulWidget {
 
 class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
   final _plateCtrl = TextEditingController();
-  final _driverCtrl = TextEditingController();
   final _typeCtrl = TextEditingController();
   final _capCtrl = TextEditingController();
   final _modelCtrl = TextEditingController();
@@ -27,30 +26,28 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrar vehiculo')),
+      appBar: AppBar(title: const Text('Registrar vehículo')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            CustomInput(label: 'Placa', hint: 'Ej. ABC-123', controller: _plateCtrl),
+            CustomInput(label: 'Placa', hint: 'Ej. WXY123', controller: _plateCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Conductor asignado', hint: 'Nombre del conductor', controller: _driverCtrl),
+            CustomInput(label: 'Tipo', hint: 'BUSETA / AUTOMOVIL / CAMIONETA', controller: _typeCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Tipo', hint: 'Buseta / Automóvil', controller: _typeCtrl),
+            CustomInput(label: 'Capacidad de pasajeros', hint: 'Ej. 19', controller: _capCtrl, keyboardType: TextInputType.number),
             const SizedBox(height: 12),
-            CustomInput(label: 'Capacidad', hint: 'N pasajeros', controller: _capCtrl, keyboardType: TextInputType.number),
+            CustomInput(label: 'Marca', hint: 'Ej. Chevrolet', controller: _brandCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Modelo', hint: 'Ej. 2022', controller: _modelCtrl),
+            CustomInput(label: 'Modelo', hint: 'Ej. NPR 2022', controller: _modelCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Marca', hint: 'Ej. Chevrolet NPR', controller: _brandCtrl),
+            CustomInput(label: 'Tarjeta de propiedad', hint: 'Número de tarjeta', controller: _tpCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Tarjeta de propiedad', hint: 'N de la tarjeta de propiedad', controller: _tpCtrl),
+            CustomInput(label: 'ID Tarifa asignada', hint: 'Ej. 13', controller: _fareCtrl, keyboardType: TextInputType.number),
             const SizedBox(height: 12),
-            CustomInput(label: 'Tarifa asignada', hint: 'Seleccionar tarifa', controller: _fareCtrl),
+            CustomInput(label: 'Vigencia SOAT', hint: 'AAAA-MM-DD (Ej. 2027-06-30)', controller: _soatCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Vigencia Soat', hint: 'dd/mm/aaaa', controller: _soatCtrl),
-            const SizedBox(height: 12),
-            CustomInput(label: 'Vigencia TRM', hint: 'dd/mm/aaaa', controller: _trmCtrl),
+            CustomInput(label: 'Vigencia TRM', hint: 'AAAA-MM-DD (Ej. 2027-06-30)', controller: _trmCtrl),
             const SizedBox(height: 22),
             PrimaryButton(
               text: 'Guardar',
@@ -58,25 +55,28 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
                 if (_plateCtrl.text.trim().isEmpty) return;
                 final navigator = Navigator.of(context);
                 final messenger = ScaffoldMessenger.of(context);
-                await context.read<AppProvider>().addVehicle(
-                      VehicleModel(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        placa: _plateCtrl.text.trim().toUpperCase(),
-                        tipo: _typeCtrl.text.trim(),
-                        marcaModelo: '${_brandCtrl.text.trim()} ${_modelCtrl.text.trim()}',
-                        capacidad: int.tryParse(_capCtrl.text) ?? 0,
-                        conductor: _driverCtrl.text.trim(),
-                        tarjetaPropiedad: _tpCtrl.text.trim(),
-                        soat: _soatCtrl.text.trim(),
-                        trm: _trmCtrl.text.trim(),
-                        tarifa: _fareCtrl.text.trim(),
-                        estado: 'Activa',
-                      ),
-                    );
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('Vehículo registrado exitosamente')),
-                );
-                navigator.pop();
+                try {
+                  final cleanPlate = _plateCtrl.text.trim().toUpperCase().replaceAll('-', '');
+                  await context.read<AppProvider>().addVehicle(
+                        VehicleModel(
+                          id: cleanPlate,
+                          placa: cleanPlate,
+                          tipo: _typeCtrl.text.trim().toUpperCase(),
+                          marcaModelo: '${_brandCtrl.text.trim()} ${_modelCtrl.text.trim()}'.trim(),
+                          capacidad: int.tryParse(_capCtrl.text) ?? 0,
+                          conductor: 'Sin asignar',
+                          tarjetaPropiedad: _tpCtrl.text.trim(),
+                          soat: _soatCtrl.text.trim(),
+                          trm: _trmCtrl.text.trim(),
+                          tarifa: _fareCtrl.text.trim(),
+                          estado: 'Activa',
+                        ),
+                      );
+                  messenger.showSnackBar(const SnackBar(content: Text('Vehículo registrado exitosamente')));
+                  navigator.pop();
+                } catch (e) {
+                  messenger.showSnackBar(SnackBar(content: Text('Error al registrar vehículo: $e')));
+                }
               },
             ),
             const SizedBox(height: 10),

@@ -10,6 +10,8 @@ class SanctionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isVigente = sanction.estado == 'Vigente';
+
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle de sanción')),
       body: Padding(
@@ -17,15 +19,17 @@ class SanctionDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.dangerBg, borderRadius: BorderRadius.circular(12)),
-              child: const Text(
-                'Sanción vigente\nEl conductor no está disponible para nuevas asignaciones hasta que finalice el período.',
-                style: TextStyle(color: AppColors.dangerText, fontSize: 12),
+            if (isVigente) ...[
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: AppColors.dangerBg, borderRadius: BorderRadius.circular(12)),
+                child: const Text(
+                  'Sanción vigente\nEl conductor no está disponible para nuevas asignaciones hasta que finalice el período.',
+                  style: TextStyle(color: AppColors.dangerText, fontSize: 12),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+            ],
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
@@ -37,13 +41,15 @@ class SanctionDetailScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Estado', style: TextStyle(color: AppColors.textSecondary)),
-                      StatusBadge(label: sanction.estado, type: BadgeType.danger),
+                      const Text('Estado', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      StatusBadge(
+                        label: sanction.estado,
+                        type: isVigente ? BadgeType.danger : BadgeType.success,
+                      ),
                     ],
                   ),
                   const Divider(),
                   _SRow('Motivo', sanction.motivo),
-                  _SRow('Observaciones', sanction.observaciones.isEmpty ? 'Sin observaciones' : sanction.observaciones),
                 ],
               ),
             ),

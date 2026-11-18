@@ -14,6 +14,7 @@ class RegisterDispatchScreen extends StatefulWidget {
 }
 
 class _RegisterDispatchScreenState extends State<RegisterDispatchScreen> {
+  final _routeCtrl = TextEditingController(text: 'Sincelejo - Sampués');
   final _plateCtrl = TextEditingController();
   final _dateCtrl = TextEditingController();
   final _paxCtrl = TextEditingController();
@@ -32,37 +33,44 @@ class _RegisterDispatchScreenState extends State<RegisterDispatchScreen> {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(color: AppColors.infoBg, borderRadius: BorderRadius.circular(12)),
               child: const Text(
-                'Sincelejo → Sampués\nRuta operada por SinSam Express. Verifique disponibilidad antes de despachar.',
+                'Verifique que el vehículo esté activo, afiliado y con conductor sin sanciones vigentes antes de despachar.',
                 style: TextStyle(color: AppColors.infoText, fontSize: 12),
               ),
             ),
             const SizedBox(height: 14),
-            CustomInput(label: 'Vehículo', hint: 'Ej. ABC-123', controller: _plateCtrl),
+            CustomInput(label: 'Ruta', hint: 'Ej. Sincelejo - Sampués', controller: _routeCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Fecha', hint: 'dd/mm/aaaa', controller: _dateCtrl),
+            CustomInput(label: 'Placa del vehículo', hint: 'Ej. WXY123', controller: _plateCtrl),
+            const SizedBox(height: 12),
+            CustomInput(label: 'Fecha', hint: 'AAAA-MM-DD (Ej. 2026-11-18)', controller: _dateCtrl),
             const SizedBox(height: 12),
             CustomInput(label: 'Número de pasajeros', hint: 'Ej. 14', keyboardType: TextInputType.number, controller: _paxCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Hora', hint: '--:--', controller: _hourCtrl),
+            CustomInput(label: 'Hora', hint: 'HH:mm (Ej. 08:30)', controller: _hourCtrl),
             const SizedBox(height: 22),
             PrimaryButton(
               text: 'Guardar',
               onPressed: () async {
                 if (_plateCtrl.text.trim().isEmpty) return;
                 final navigator = Navigator.of(context);
-                await context.read<AppProvider>().addDispatch(
-                      DispatchModel(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        codigo: 'DSP-${1000 + DateTime.now().second}',
-                        ruta: 'Sincelejo - Sampués',
-                        placa: _plateCtrl.text.trim().toUpperCase(),
-                        pasajeros: int.tryParse(_paxCtrl.text) ?? 0,
-                        fecha: _dateCtrl.text.trim(),
-                        hora: _hourCtrl.text.trim(),
-                        estado: 'Despachado',
-                      ),
-                    );
-                navigator.pop();
+                final messenger = ScaffoldMessenger.of(context);
+                try {
+                  await context.read<AppProvider>().addDispatch(
+                        DispatchModel(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          codigo: 'DSP-${1000 + DateTime.now().second}',
+                          ruta: _routeCtrl.text.trim(),
+                          placa: _plateCtrl.text.trim().toUpperCase().replaceAll('-', ''),
+                          pasajeros: int.tryParse(_paxCtrl.text) ?? 0,
+                          fecha: _dateCtrl.text.trim(),
+                          hora: _hourCtrl.text.trim(),
+                          estado: 'Despachado',
+                        ),
+                      );
+                  navigator.pop();
+                } catch (e) {
+                  messenger.showSnackBar(SnackBar(content: Text('Error al registrar despacho: $e')));
+                }
               },
             ),
             const SizedBox(height: 10),

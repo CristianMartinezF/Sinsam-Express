@@ -25,15 +25,24 @@ class AppProvider extends ChangeNotifier {
         throw Exception('Simulated network error');
       }
 
+      Future<List<T>> safeLoad<T>(String module, Future<List<T>> Function() loader) async {
+        try {
+          return await loader();
+        } catch (e) {
+          debugPrint('Error cargando $module: $e');
+          return [];
+        }
+      }
+
       final results = await Future.wait([
-        ApiService.getAssociates(),
-        ApiService.getAffiliations(),
-        ApiService.getDrivers(),
-        ApiService.getSanctions(),
-        ApiService.getVehicles(),
-        ApiService.getFares(),
-        ApiService.getSheets(),
-        ApiService.getDispatches(),
+        safeLoad('asociados', ApiService.getAssociates),
+        safeLoad('afiliaciones', ApiService.getAffiliations),
+        safeLoad('conductores', ApiService.getDrivers),
+        safeLoad('sanciones', ApiService.getSanctions),
+        safeLoad('vehiculos', ApiService.getVehicles),
+        safeLoad('tarifas', ApiService.getFares),
+        safeLoad('planillas', ApiService.getSheets),
+        safeLoad('despachos', ApiService.getDispatches),
       ]);
 
       associates = results[0] as List<AssociateModel>;
@@ -42,9 +51,39 @@ class AppProvider extends ChangeNotifier {
       sanctions = results[3] as List<SanctionModel>;
       vehicles = results[4] as List<VehicleModel>;
       fares = results[5] as List<FareModel>;
-      sheets = results[6] as List<SheetModel>;
       dispatches = results[7] as List<DispatchModel>;
-    } catch (_) {
+
+      sheets = (results[6] as List<SheetModel>).map((s) {
+        if (s.valor > 0) return s;
+
+        FareModel? matchedFare;
+        if (s.tarifaId.isNotEmpty) {
+          matchedFare = fares.where((f) => f.id == s.tarifaId).firstOrNull;
+        }
+        if (matchedFare == null) {
+          final vehicle = vehicles.where((v) => v.placa == s.placa).firstOrNull;
+          if (vehicle != null && vehicle.tarifa.isNotEmpty) {
+            matchedFare = fares
+                .where((f) => f.id == vehicle.tarifa || f.nombre == vehicle.tarifa)
+                .firstOrNull;
+          }
+        }
+        matchedFare ??= fares.where((f) => f.activa).firstOrNull;
+
+        if (matchedFare == null) return s;
+        return SheetModel(
+          id: s.id,
+          numero: s.numero,
+          placa: s.placa,
+          conductor: s.conductor,
+          fecha: s.fecha,
+          tarifaId: matchedFare.id,
+          valor: matchedFare.total,
+          estado: s.estado,
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Error general fetchInitialData: $e');
       hasServerError = true;
     } finally {
       isLoading = false;
@@ -206,6 +245,7 @@ class AppProvider extends ChangeNotifier {
         placa: old.placa,
         conductor: old.conductor,
         fecha: old.fecha,
+        tarifaId: old.tarifaId,
         valor: old.valor,
         estado: 'Pagada',
       );
@@ -223,6 +263,7 @@ class AppProvider extends ChangeNotifier {
         placa: old.placa,
         conductor: old.conductor,
         fecha: old.fecha,
+        tarifaId: old.tarifaId,
         valor: old.valor,
         estado: 'Anulada',
       );

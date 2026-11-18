@@ -35,11 +35,11 @@ class _RegisterFareScreenState extends State<RegisterFareScreen> {
           children: [
             CustomInput(label: 'Nombre de tarifa', hint: 'Ej. Tarifa estándar', controller: _nameCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Aportes gastos varios', hint: '\$0', controller: _gastosCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
+            CustomInput(label: 'Aportes gastos varios', hint: '0', controller: _gastosCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
             const SizedBox(height: 12),
-            CustomInput(label: 'Fondo de reposición', hint: '\$0', controller: _fondoCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
+            CustomInput(label: 'Fondo de reposición', hint: '0', controller: _fondoCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
             const SizedBox(height: 12),
-            CustomInput(label: 'Aporte social del socio', hint: '\$0', controller: _socialCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
+            CustomInput(label: 'Aporte social del socio', hint: '0', controller: _socialCtrl, keyboardType: TextInputType.number, onChanged: (_) => setState(() {})),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(14),
@@ -63,17 +63,22 @@ class _RegisterFareScreenState extends State<RegisterFareScreen> {
               onPressed: () async {
                 if (_nameCtrl.text.trim().isEmpty) return;
                 final navigator = Navigator.of(context);
-                await context.read<AppProvider>().addFare(
-                      FareModel(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        nombre: _nameCtrl.text.trim(),
-                        gastosVarios: int.tryParse(_gastosCtrl.text) ?? 0,
-                        fondoReposicion: int.tryParse(_fondoCtrl.text) ?? 0,
-                        aporteSocial: int.tryParse(_socialCtrl.text) ?? 0,
-                        activa: _isActive,
-                      ),
-                    );
-                navigator.pop();
+                final messenger = ScaffoldMessenger.of(context);
+                try {
+                  await context.read<AppProvider>().addFare(
+                        FareModel(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          nombre: _nameCtrl.text.trim(),
+                          gastosVarios: int.tryParse(_gastosCtrl.text) ?? 0,
+                          fondoReposicion: int.tryParse(_fondoCtrl.text) ?? 0,
+                          aporteSocial: int.tryParse(_socialCtrl.text) ?? 0,
+                          activa: _isActive,
+                        ),
+                      );
+                  navigator.pop();
+                } catch (e) {
+                  messenger.showSnackBar(SnackBar(content: Text('Error al crear tarifa: $e')));
+                }
               },
             ),
             const SizedBox(height: 10),

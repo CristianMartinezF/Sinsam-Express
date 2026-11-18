@@ -13,7 +13,7 @@ class GenerateSheetsScreen extends StatefulWidget {
 }
 
 class _GenerateSheetsScreenState extends State<GenerateSheetsScreen> {
-  final _dateCtrl = TextEditingController();
+  final _dateCtrl = TextEditingController(text: DateTime.now().toString().split(' ').first);
   final Map<String, bool> _selected = {};
 
   @override
@@ -21,7 +21,7 @@ class _GenerateSheetsScreenState extends State<GenerateSheetsScreen> {
     super.didChangeDependencies();
     final vehicles = context.read<AppProvider>().vehicles;
     for (final v in vehicles) {
-      final key = '${v.placa} ${v.conductor}';
+      final key = '${v.placa} • ${v.conductor}';
       _selected.putIfAbsent(key, () => v.estado == 'Activa');
     }
   }
@@ -36,11 +36,7 @@ class _GenerateSheetsScreenState extends State<GenerateSheetsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomInput(label: 'Fecha', hint: 'dd/mm/aaaa', controller: _dateCtrl),
-            const SizedBox(height: 12),
-            const CustomInput(label: 'Tipo de planilla', hint: 'Diaria'),
-            const SizedBox(height: 12),
-            const CustomInput(label: 'Tarifa a aplicar', hint: 'Tarifa estándar'),
+            CustomInput(label: 'Fecha', hint: 'AAAA-MM-DD', controller: _dateCtrl),
             const SizedBox(height: 16),
             Text('VEHÍCULOS (${activeList.length} SELECCIONADOS)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
             if (_selected.isEmpty)
@@ -65,7 +61,7 @@ class _GenerateSheetsScreenState extends State<GenerateSheetsScreen> {
               text: 'Generar ${activeList.length} planillas',
               onPressed: () {
                 if (activeList.isEmpty) return;
-                context.read<AppProvider>().generateSheets(activeList, _dateCtrl.text, 5500);
+                context.read<AppProvider>().generateSheets(activeList, _dateCtrl.text.trim(), 5500);
                 Navigator.pop(context);
               },
             ),

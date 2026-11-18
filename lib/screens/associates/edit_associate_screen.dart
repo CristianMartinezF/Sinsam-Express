@@ -14,7 +14,6 @@ class EditAssociateScreen extends StatefulWidget {
 }
 
 class _EditAssociateScreenState extends State<EditAssociateScreen> {
-  late final TextEditingController _idCtrl;
   late final TextEditingController _nameCtrl;
   late final TextEditingController _phoneCtrl;
   late final TextEditingController _emailCtrl;
@@ -23,7 +22,6 @@ class _EditAssociateScreenState extends State<EditAssociateScreen> {
   @override
   void initState() {
     super.initState();
-    _idCtrl = TextEditingController(text: widget.associate.identificacion);
     _nameCtrl = TextEditingController(text: widget.associate.nombre);
     _phoneCtrl = TextEditingController(text: widget.associate.celular);
     _emailCtrl = TextEditingController(text: widget.associate.correo);
@@ -33,38 +31,44 @@ class _EditAssociateScreenState extends State<EditAssociateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Editar asociados')),
+      appBar: AppBar(title: const Text('Editar asociado')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomInput(label: 'Identificacion', hint: '', controller: _idCtrl),
-            const SizedBox(height: 12),
-            CustomInput(label: 'Nombre y apellido', hint: '', controller: _nameCtrl),
+            Text('CC ${widget.associate.identificacion}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            const SizedBox(height: 14),
+            CustomInput(label: 'Nombres completos', hint: '', controller: _nameCtrl),
             const SizedBox(height: 12),
             CustomInput(label: 'Celular', hint: '', controller: _phoneCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Correo', hint: '', controller: _emailCtrl),
+            CustomInput(label: 'Correo electrónico', hint: '', controller: _emailCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Fecha de nacimiento', hint: '', controller: _birthCtrl),
+            CustomInput(label: 'Fecha de nacimiento', hint: 'AAAA-MM-DD', controller: _birthCtrl),
             const SizedBox(height: 22),
             PrimaryButton(
               text: 'Guardar cambios',
               onPressed: () async {
                 final navigator = Navigator.of(context);
-                final updated = AssociateModel(
-                  id: widget.associate.id,
-                  identificacion: _idCtrl.text.trim(),
-                  nombre: _nameCtrl.text.trim(),
-                  celular: _phoneCtrl.text.trim(),
-                  correo: _emailCtrl.text.trim(),
-                  fechaNacimiento: _birthCtrl.text.trim(),
-                  fechaIngreso: widget.associate.fechaIngreso,
-                  placaVehiculo: widget.associate.placaVehiculo,
-                  activo: widget.associate.activo,
-                );
-                await context.read<AppProvider>().editAssociate(updated);
-                navigator.pop();
+                final messenger = ScaffoldMessenger.of(context);
+                try {
+                  final updated = AssociateModel(
+                    id: widget.associate.id,
+                    identificacion: widget.associate.identificacion,
+                    nombre: _nameCtrl.text.trim(),
+                    celular: _phoneCtrl.text.trim(),
+                    correo: _emailCtrl.text.trim(),
+                    fechaNacimiento: _birthCtrl.text.trim(),
+                    fechaIngreso: widget.associate.fechaIngreso,
+                    placaVehiculo: widget.associate.placaVehiculo,
+                    activo: widget.associate.activo,
+                  );
+                  await context.read<AppProvider>().editAssociate(updated);
+                  navigator.pop();
+                } catch (e) {
+                  messenger.showSnackBar(SnackBar(content: Text('Error al actualizar: $e')));
+                }
               },
             ),
             const SizedBox(height: 10),

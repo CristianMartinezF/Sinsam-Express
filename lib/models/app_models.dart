@@ -22,26 +22,24 @@ class AssociateModel {
   });
 
   factory AssociateModel.fromJson(Map<String, dynamic> json) => AssociateModel(
-        id: json['id'].toString(),
+        id: (json['id'] ?? json['identificacion'] ?? '').toString(),
         identificacion: json['identificacion'] ?? '',
-        nombre: json['nombre'] ?? '',
+        nombre: json['nombres'] ?? json['nombre'] ?? '',
         celular: json['celular'] ?? '',
         correo: json['correo'] ?? '',
-        fechaNacimiento: json['fecha_nacimiento'] ?? '',
-        fechaIngreso: json['fecha_ingreso'] ?? '',
-        placaVehiculo: json['placa_vehiculo'] ?? '',
+        fechaNacimiento: json['fechaNacimiento'] ?? json['fecha_nacimiento'] ?? '',
+        fechaIngreso: json['fechaIngreso'] ?? json['fecha_ingreso'] ?? '',
+        placaVehiculo: json['placaVehiculo'] ?? json['placa_vehiculo'] ?? '',
         activo: json['activo'] ?? true,
       );
 
   Map<String, dynamic> toJson() => {
         'identificacion': identificacion,
-        'nombre': nombre,
+        'nombres': nombre,
+        'activo': activo,
         'celular': celular,
         'correo': correo,
-        'fecha_nacimiento': fechaNacimiento,
-        'fecha_ingreso': fechaIngreso,
-        'placa_vehiculo': placaVehiculo,
-        'activo': activo,
+        'fechaNacimiento': fechaNacimiento,
       };
 }
 
@@ -64,15 +62,30 @@ class AffiliationModel {
     required this.vigente,
   });
 
-  factory AffiliationModel.fromJson(Map<String, dynamic> json) => AffiliationModel(
-        id: json['id'].toString(),
-        codigo: json['codigo'] ?? '',
-        asociado: json['asociado'] ?? '',
-        vehiculo: json['vehiculo'] ?? '',
-        fechaInicio: json['fecha_inicio'] ?? '',
-        fechaFin: json['fecha_fin'] ?? '-',
-        vigente: json['vigente'] ?? true,
-      );
+  factory AffiliationModel.fromJson(Map<String, dynamic> json) {
+    final estadoStr = (json['estado'] ?? '').toString().toUpperCase();
+    final isVigente = json['vigente'] is bool
+        ? json['vigente']
+        : (estadoStr == 'ACTIVA' || estadoStr == 'VIGENTE');
+
+    final asociadoText = json['asociado'] is Map
+        ? (json['asociado']['nombres'] ?? json['identificacionAsociado'] ?? '')
+        : (json['asociado'] ?? json['identificacionAsociado'] ?? '');
+
+    final vehiculoText = json['vehiculo'] is Map
+        ? (json['vehiculo']['placa'] ?? json['placaVehiculo'] ?? '')
+        : (json['vehiculo'] ?? json['placaVehiculo'] ?? '');
+
+    return AffiliationModel(
+      id: (json['id'] ?? '').toString(),
+      codigo: json['codigo'] ?? 'AFL-${json['id']}',
+      asociado: asociadoText.toString(),
+      vehiculo: vehiculoText.toString(),
+      fechaInicio: json['fechaAfiliacion'] ?? json['fecha_inicio'] ?? '',
+      fechaFin: json['fechaFinAfiliacion']?.toString() ?? json['fecha_fin'] ?? '-',
+      vigente: isVigente,
+    );
+  }
 }
 
 class DriverModel {
@@ -100,29 +113,39 @@ class DriverModel {
     required this.estado,
   });
 
-  factory DriverModel.fromJson(Map<String, dynamic> json) => DriverModel(
-        id: json['id'].toString(),
-        identificacion: json['identificacion'] ?? '',
-        nombre: json['nombre'] ?? '',
-        fechaNacimiento: json['fecha_nacimiento'] ?? '',
-        celular: json['celular'] ?? '',
-        correo: json['correo'] ?? '',
-        numeroLicencia: json['numero_licencia'] ?? '',
-        categoria: json['categoria'] ?? '',
-        vigenciaLicencia: json['vigencia_licencia'] ?? '',
-        estado: json['estado'] ?? 'Activo',
-      );
+  factory DriverModel.fromJson(Map<String, dynamic> json) {
+    final isActivo = json['activo'];
+    String parsedEstado = 'Activo';
+    if (isActivo is bool) {
+      parsedEstado = isActivo ? 'Activo' : 'Inactivo';
+    } else if (json['estado'] != null) {
+      parsedEstado = json['estado'].toString();
+    }
+
+    return DriverModel(
+      id: (json['id'] ?? json['identificacion'] ?? '').toString(),
+      identificacion: json['identificacion'] ?? '',
+      nombre: json['nombres'] ?? json['nombre'] ?? '',
+      fechaNacimiento: json['fechaNacimiento'] ?? json['fecha_nacimiento'] ?? '',
+      celular: json['celular'] ?? '',
+      correo: json['correo'] ?? '',
+      numeroLicencia: json['numeroLicencia'] ?? json['numero_licencia'] ?? '',
+      categoria: json['categoriaLicencia'] ?? json['categoria'] ?? '',
+      vigenciaLicencia: json['vigenciaLicencia'] ?? json['vigencia_licencia'] ?? '',
+      estado: parsedEstado,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'identificacion': identificacion,
-        'nombre': nombre,
-        'fecha_nacimiento': fechaNacimiento,
+        'nombres': nombre,
+        'fechaNacimiento': fechaNacimiento,
+        'activo': estado == 'Activo',
+        'numeroLicencia': numeroLicencia,
+        'categoriaLicencia': categoria,
+        'vigenciaLicencia': vigenciaLicencia,
         'celular': celular,
         'correo': correo,
-        'numero_licencia': numeroLicencia,
-        'categoria': categoria,
-        'vigencia_licencia': vigenciaLicencia,
-        'estado': estado,
       };
 }
 
@@ -143,29 +166,44 @@ class SanctionModel {
     required this.fechaInicio,
     required this.fechaFin,
     required this.motivo,
-    required this.observaciones,
+    this.observaciones = '',
     required this.estado,
   });
 
-  factory SanctionModel.fromJson(Map<String, dynamic> json) => SanctionModel(
-        id: json['id'].toString(),
-        conductor: json['conductor'] ?? '',
-        identificacion: json['identificacion'] ?? '',
-        fechaInicio: json['fecha_inicio'] ?? '',
-        fechaFin: json['fecha_fin'] ?? '',
-        motivo: json['motivo'] ?? '',
-        observaciones: json['observaciones'] ?? '',
-        estado: json['estado'] ?? 'Vigente',
-      );
+  factory SanctionModel.fromJson(Map<String, dynamic> json) {
+    final conductorText = json['conductor'] is Map
+        ? (json['conductor']['nombres'] ?? json['identificacionConductor'] ?? '')
+        : (json['conductor'] ?? json['identificacionConductor'] ?? '');
+
+    final parsedFechaInicio = (json['fechaInicio'] ?? json['fecha_inicio'] ?? '').toString();
+    final parsedFechaFin = (json['fechaFin'] ?? json['fecha_fin'] ?? '').toString();
+
+    final rawEstado = (json['estado'] ?? '').toString().toUpperCase();
+    final endDate = DateTime.tryParse(parsedFechaFin);
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final isExpired = endDate != null && endDate.isBefore(today);
+
+    final parsedEstado = (rawEstado == 'CUMPLIDA' || rawEstado == 'VENCIDA' || isExpired)
+        ? 'Vencida'
+        : 'Vigente';
+
+    return SanctionModel(
+      id: (json['id'] ?? '').toString(),
+      conductor: conductorText.toString(),
+      identificacion: (json['identificacionConductor'] ?? json['identificacion'] ?? '').toString(),
+      fechaInicio: parsedFechaInicio,
+      fechaFin: parsedFechaFin,
+      motivo: (json['motivo'] ?? '').toString(),
+      observaciones: (json['observaciones'] ?? '').toString(),
+      estado: parsedEstado,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        'conductor': conductor,
-        'identificacion': identificacion,
-        'fecha_inicio': fechaInicio,
-        'fecha_fin': fechaFin,
+        'identificacionConductor': identificacion,
         'motivo': motivo,
-        'observaciones': observaciones,
-        'estado': estado,
+        'fechaInicio': fechaInicio,
+        'fechaFin': fechaFin,
       };
 }
 
@@ -196,32 +234,60 @@ class VehicleModel {
     required this.estado,
   });
 
-  factory VehicleModel.fromJson(Map<String, dynamic> json) => VehicleModel(
-        id: json['id'].toString(),
-        placa: json['placa'] ?? '',
-        tipo: json['tipo'] ?? '',
-        marcaModelo: json['marca_modelo'] ?? '',
-        capacidad: int.tryParse(json['capacidad'].toString()) ?? 0,
-        conductor: json['conductor'] ?? '',
-        tarjetaPropiedad: json['tarjeta_propiedad'] ?? '',
-        soat: json['soat'] ?? '',
-        trm: json['trm'] ?? '',
-        tarifa: json['tarifa'] ?? '',
-        estado: json['estado'] ?? 'Activa',
-      );
+  factory VehicleModel.fromJson(Map<String, dynamic> json) {
+    final isActivo = json['activo'];
+    String parsedEstado = 'Activa';
+    if (isActivo is bool) {
+      parsedEstado = isActivo ? 'Activa' : 'Inactiva';
+    } else if (json['estado'] != null) {
+      parsedEstado = json['estado'].toString();
+    }
 
-  Map<String, dynamic> toJson() => {
-        'placa': placa,
-        'tipo': tipo,
-        'marca_modelo': marcaModelo,
-        'capacidad': capacidad,
-        'conductor': conductor,
-        'tarjeta_propiedad': tarjetaPropiedad,
-        'soat': soat,
-        'trm': trm,
-        'tarifa': tarifa,
-        'estado': estado,
-      };
+    final marca = json['marca'] ?? '';
+    final modelo = json['modelo'] ?? '';
+    final combinedMarcaModelo =
+        (marca.toString().isNotEmpty || modelo.toString().isNotEmpty)
+            ? '$marca $modelo'.trim()
+            : (json['marca_modelo'] ?? '');
+
+    return VehicleModel(
+      id: (json['id'] ?? json['placa'] ?? '').toString(),
+      placa: json['placa'] ?? '',
+      tipo: json['tipo'] ?? '',
+      marcaModelo: combinedMarcaModelo,
+      capacidad: int.tryParse((json['capacidadPasajeros'] ?? json['capacidad'] ?? 0).toString()) ?? 0,
+      conductor: json['conductor'] is Map
+          ? (json['conductor']['nombres'] ?? '')
+          : (json['conductor'] ?? json['identificacionConductor'] ?? 'Sin asignar'),
+      tarjetaPropiedad: json['tarjetaPropiedad'] ?? json['tarjeta_propiedad'] ?? '',
+      soat: json['vigenciaSoat'] ?? json['soat'] ?? '',
+      trm: json['vigenciaTrm'] ?? json['trm'] ?? '',
+      tarifa: json['tarifa'] is Map
+          ? (json['tarifa']['nombre'] ?? '')
+          : (json['tarifaId']?.toString() ?? json['tarifa'] ?? ''),
+      estado: parsedEstado,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final parts = marcaModelo.trim().split(' ');
+    final marca = parts.isNotEmpty ? parts.first : marcaModelo;
+    final modelo = parts.length > 1 ? parts.sublist(1).join(' ') : '2024';
+
+    return {
+      'placa': placa.replaceAll('-', ''),
+      'tipo': tipo.toUpperCase(),
+      'marca': marca,
+      'modelo': modelo,
+      'capacidadPasajeros': capacidad,
+      'tarjetaPropiedad': tarjetaPropiedad,
+      'tarifaId': int.tryParse(tarifa) ?? 13,
+      'activo': estado == 'Activa',
+      'vigenciaSoat': soat,
+      'vigenciaTrm': trm,
+      'fechaIngreso': DateTime.now().toString().split(' ').first,
+    };
+  }
 }
 
 class FareModel {
@@ -243,22 +309,29 @@ class FareModel {
     required this.activa,
   });
 
-  factory FareModel.fromJson(Map<String, dynamic> json) => FareModel(
-        id: json['id'].toString(),
-        nombre: json['nombre'] ?? '',
-        gastosVarios: json['gastos_varios'] ?? 0,
-        fondoReposicion: json['fondo_reposicion'] ?? 0,
-        aporteSocial: json['aporte_social'] ?? 0,
-        activa: json['activa'] ?? true,
-      );
+  factory FareModel.fromJson(Map<String, dynamic> json) {
+    final parsedId = (json['id'] ?? '').toString();
+    final gv = (double.tryParse((json['aportesGastosVarios'] ?? json['gastosVarios'] ?? json['gastos_varios'] ?? 0).toString()) ?? 0).round();
+    final fr = (double.tryParse((json['fondoReposicion'] ?? json['fondo_reposicion'] ?? 0).toString()) ?? 0).round();
+    final asoc = (double.tryParse((json['aporteSocialSocio'] ?? json['aporteSocial'] ?? json['aporte_social'] ?? 0).toString()) ?? 0).round();
+
+    return FareModel(
+      id: parsedId,
+      nombre: (json['nombre'] != null && json['nombre'].toString().isNotEmpty)
+          ? json['nombre'].toString()
+          : 'Tarifa #$parsedId',
+      gastosVarios: gv,
+      fondoReposicion: fr,
+      aporteSocial: asoc,
+      activa: json['activo'] ?? json['activa'] ?? true,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        'nombre': nombre,
-        'gastos_varios': gastosVarios,
-        'fondo_reposicion': fondoReposicion,
-        'aporte_social': aporteSocial,
-        'total': total,
-        'activa': activa,
+        'aportesGastosVarios': gastosVarios,
+        'fondoReposicion': fondoReposicion,
+        'aporteSocialSocio': aporteSocial,
+        'activo': activa,
       };
 }
 
@@ -268,6 +341,7 @@ class SheetModel {
   final String placa;
   final String conductor;
   final String fecha;
+  final String tarifaId;
   final int valor;
   final String estado;
 
@@ -277,19 +351,55 @@ class SheetModel {
     required this.placa,
     required this.conductor,
     required this.fecha,
+    this.tarifaId = '',
     required this.valor,
     required this.estado,
   });
 
-  factory SheetModel.fromJson(Map<String, dynamic> json) => SheetModel(
-        id: json['id'].toString(),
-        numero: json['numero'] ?? '',
-        placa: json['placa'] ?? '',
-        conductor: json['conductor'] ?? '',
-        fecha: json['fecha'] ?? '',
-        valor: json['valor'] ?? 0,
-        estado: json['estado'] ?? 'Pendiente',
-      );
+  factory SheetModel.fromJson(Map<String, dynamic> json) {
+    final rawEstado = (json['estado'] ?? 'ACTIVA').toString().toUpperCase();
+    final rawPago = (json['estadoPago'] ?? 'PENDIENTE').toString().toUpperCase();
+
+    String parsedEstado = 'Pendiente';
+    if (rawEstado == 'ANULADA') {
+      parsedEstado = 'Anulada';
+    } else if (rawPago == 'PAGADA' || rawPago == 'PAGADO') {
+      parsedEstado = 'Pagada';
+    }
+
+    int parsedValor = 0;
+    if (json['valorPagado'] != null && (num.tryParse(json['valorPagado'].toString()) ?? 0) > 0) {
+      parsedValor = num.parse(json['valorPagado'].toString()).round();
+    } else if (json['valor'] != null) {
+      parsedValor = num.tryParse(json['valor'].toString())?.round() ?? 0;
+    } else if (json['tarifa'] is Map && json['tarifa']['total'] != null) {
+      parsedValor = num.tryParse(json['tarifa']['total'].toString())?.round() ?? 0;
+    }
+
+    String conductorText = '';
+    if (json['conductor'] is Map) {
+      conductorText = (json['conductor']['Nombre del conductor'] ??
+              json['conductor']['nombres'] ??
+              json['conductor']['Identificacion'] ??
+              '')
+          .toString();
+    } else {
+      conductorText = (json['conductor'] ?? '').toString();
+    }
+
+    final rawNum = (json['numero'] ?? json['id'] ?? '').toString();
+
+    return SheetModel(
+      id: rawNum,
+      numero: rawNum,
+      placa: (json['placaVehiculo'] ?? json['placa'] ?? '').toString(),
+      conductor: conductorText,
+      fecha: (json['fecha'] ?? '').toString(),
+      tarifaId: (json['tarifaId'] ?? '').toString(),
+      valor: parsedValor,
+      estado: parsedEstado,
+    );
+  }
 }
 
 class DispatchModel {
@@ -304,7 +414,7 @@ class DispatchModel {
 
   DispatchModel({
     required this.id,
-    required this.codigo,
+    this.codigo = '',
     required this.ruta,
     required this.placa,
     required this.pasajeros,
@@ -314,22 +424,24 @@ class DispatchModel {
   });
 
   factory DispatchModel.fromJson(Map<String, dynamic> json) => DispatchModel(
-        id: json['id'].toString(),
-        codigo: json['codigo'] ?? '',
+        id: (json['id'] ?? '').toString(),
+        codigo: json['codigo'] ?? 'DSP-${json['id']}',
         ruta: json['ruta'] ?? '',
-        placa: json['placa'] ?? '',
-        pasajeros: json['pasajeros'] ?? 0,
+        placa: json['placaVehiculo'] ?? json['placa'] ?? '',
+        pasajeros: int.tryParse((json['numeroPasajeros'] ?? json['pasajeros'] ?? 0).toString()) ?? 0,
         fecha: json['fecha'] ?? '',
         hora: json['hora'] ?? '',
         estado: json['estado'] ?? 'Despachado',
       );
 
-  Map<String, dynamic> toJson() => {
-        'ruta': ruta,
-        'placa': placa,
-        'pasajeros': pasajeros,
-        'fecha': fecha,
-        'hora': hora,
-        'estado': estado,
-      };
+  Map<String, dynamic> toJson() {
+    final formattedHora = hora.length == 5 ? '$hora:00' : hora;
+    return {
+      'ruta': ruta,
+      'placaVehiculo': placa.replaceAll('-', ''),
+      'hora': formattedHora,
+      'fecha': fecha,
+      'numeroPasajeros': pasajeros,
+    };
+  }
 }

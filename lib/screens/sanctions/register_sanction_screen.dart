@@ -14,21 +14,26 @@ class RegisterSanctionScreen extends StatefulWidget {
 }
 
 class _RegisterSanctionScreenState extends State<RegisterSanctionScreen> {
-  final _driverCtrl = TextEditingController();
   final _idCtrl = TextEditingController();
   final _startCtrl = TextEditingController();
   final _endCtrl = TextEditingController();
   final _reasonCtrl = TextEditingController();
-  final _obsCtrl = TextEditingController();
 
   void _confirmSanction(BuildContext context) {
+    if (_idCtrl.text.trim().isEmpty || _reasonCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa identificación del conductor y motivo')),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         icon: const Icon(Icons.error_outline, color: AppColors.dangerText, size: 42),
-        title: const Text('¿Confirmar Sancion?'),
+        title: const Text('¿Confirmar Sanción?'),
         content: Text(
-          '${_driverCtrl.text} no podra ser asignado a operaciones entre el ${_startCtrl.text} y el ${_endCtrl.text}.',
+          'El conductor con CC ${_idCtrl.text.trim()} no podrá ser asignado a operaciones entre el ${_startCtrl.text.trim()} y el ${_endCtrl.text.trim()}.',
           textAlign: TextAlign.center,
         ),
         actions: [
@@ -37,22 +42,26 @@ class _RegisterSanctionScreenState extends State<RegisterSanctionScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.dangerText, foregroundColor: Colors.white),
             onPressed: () async {
               final navigator = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
               Navigator.pop(dialogCtx);
-              await context.read<AppProvider>().addSanction(
-                    SanctionModel(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      conductor: _driverCtrl.text.trim(),
-                      identificacion: _idCtrl.text.trim(),
-                      fechaInicio: _startCtrl.text.trim(),
-                      fechaFin: _endCtrl.text.trim(),
-                      motivo: _reasonCtrl.text.trim(),
-                      observaciones: _obsCtrl.text.trim(),
-                      estado: 'Vigente',
-                    ),
-                  );
-              navigator.pop();
+              try {
+                await context.read<AppProvider>().addSanction(
+                      SanctionModel(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        conductor: _idCtrl.text.trim(),
+                        identificacion: _idCtrl.text.trim(),
+                        fechaInicio: _startCtrl.text.trim(),
+                        fechaFin: _endCtrl.text.trim(),
+                        motivo: _reasonCtrl.text.trim(),
+                        estado: 'Vigente',
+                      ),
+                    );
+                navigator.pop();
+              } catch (e) {
+                messenger.showSnackBar(SnackBar(content: Text('Error al registrar sanción: $e')));
+              }
             },
-            child: const Text('Si, registrar sancion'),
+            child: const Text('Sí, registrar sanción'),
           ),
         ],
       ),
@@ -68,22 +77,18 @@ class _RegisterSanctionScreenState extends State<RegisterSanctionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomInput(label: 'Conductor', hint: 'Nombre completo del conductor', controller: _driverCtrl),
+            CustomInput(label: 'Identificación del conductor', hint: 'Ej. 1102899321', controller: _idCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Identificación', hint: 'Número de documento', controller: _idCtrl),
+            CustomInput(label: 'Fecha inicial', hint: 'AAAA-MM-DD (Ej. 2026-11-18)', controller: _startCtrl),
             const SizedBox(height: 12),
-            CustomInput(label: 'Fecha inicial', hint: 'dd/mm/aaaa', controller: _startCtrl),
-            const SizedBox(height: 12),
-            CustomInput(label: 'Fecha final', hint: 'dd/mm/aaaa', controller: _endCtrl),
+            CustomInput(label: 'Fecha final', hint: 'AAAA-MM-DD (Ej. 2026-11-21)', controller: _endCtrl),
             const SizedBox(height: 6),
             const Text(
               'La fecha final debe ser igual o posterior a la inicial.',
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
-            CustomInput(label: 'Motivo de la sanción', hint: 'Ej. Documentación vencida', controller: _reasonCtrl),
-            const SizedBox(height: 12),
-            CustomInput(label: 'Observaciones (opcional)', hint: 'Añadir observaciones...', maxLines: 3, controller: _obsCtrl),
+            CustomInput(label: 'Motivo de la sanción', hint: 'Ej. Incumplimiento de horario', maxLines: 3, controller: _reasonCtrl),
             const SizedBox(height: 22),
             PrimaryButton(text: 'Guardar sanción', onPressed: () => _confirmSanction(context)),
             const SizedBox(height: 10),

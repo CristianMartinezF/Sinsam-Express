@@ -6,9 +6,17 @@ import '../../services/app_provider.dart';
 import '../../widgets/custom_input.dart';
 import '../../widgets/primary_button.dart';
 
-class SheetPaymentScreen extends StatelessWidget {
+class SheetPaymentScreen extends StatefulWidget {
   final SheetModel sheet;
   const SheetPaymentScreen({super.key, required this.sheet});
+
+  @override
+  State<SheetPaymentScreen> createState() => _SheetPaymentScreenState();
+}
+
+class _SheetPaymentScreenState extends State<SheetPaymentScreen> {
+  final _dateCtrl = TextEditingController(text: DateTime.now().toString().split(' ').first);
+  final _methodCtrl = TextEditingController(text: 'Efectivo');
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +31,22 @@ class SheetPaymentScreen extends StatelessWidget {
               decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
               child: Column(
                 children: [
-                  _PRow('Número', sheet.numero),
-                  _PRow('Conductor', sheet.conductor),
-                  _PRow('Vehículo', sheet.placa),
-                  _PRow('Valor', '\$${sheet.valor}'),
+                  _PRow('Número', widget.sheet.numero),
+                  _PRow('Conductor', widget.sheet.conductor.isEmpty ? 'Sin asignar' : widget.sheet.conductor),
+                  _PRow('Vehículo', widget.sheet.placa),
+                  _PRow('Valor', '\$${widget.sheet.valor}'),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            const CustomInput(label: 'Fecha de pago', hint: 'dd/mm/aaaa'),
+            CustomInput(label: 'Fecha de pago', hint: 'AAAA-MM-DD', controller: _dateCtrl),
             const SizedBox(height: 12),
-            const CustomInput(label: 'Método de pago', hint: 'Efectivo'),
+            CustomInput(label: 'Método de pago', hint: 'Efectivo', controller: _methodCtrl),
             const Spacer(),
             PrimaryButton(
               text: 'Registrar pago',
               onPressed: () {
-                context.read<AppProvider>().paySheet(sheet.id);
+                context.read<AppProvider>().paySheet(widget.sheet.id);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Pago registrado con éxito')),
                 );
@@ -64,7 +72,7 @@ class _PRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(k, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          Flexible(child: Text(v, textAlign: TextAlign.end, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13))),
         ],
       ),
     );

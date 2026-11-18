@@ -14,9 +14,10 @@ class AssociateDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final item = provider.associates.firstWhere((a) => a.id == associateId);
+    final initials = item.nombre.trim().split(' ').take(2).map((s) => s.isNotEmpty ? s[0] : '').join().toUpperCase();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle del asociados')),
+      appBar: AppBar(title: const Text('Detalle del asociado')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -25,7 +26,7 @@ class AssociateDetailScreen extends StatelessWidget {
             ListTile(
               tileColor: AppColors.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              leading: CircleAvatar(child: Text(item.nombre.substring(0, 2).toUpperCase())),
+              leading: CircleAvatar(child: Text(initials.isEmpty ? 'A' : initials)),
               title: Text(item.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Align(
                 alignment: Alignment.centerLeft,
@@ -36,20 +37,13 @@ class AssociateDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const Text('INFORMACION PERSONAL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+            const Text('INFORMACIÓN PERSONAL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
             const SizedBox(height: 8),
             _card([
-              _row('Identificacion', item.identificacion),
+              _row('Identificación', item.identificacion),
               _row('Celular', item.celular),
               _row('Correo', item.correo),
               _row('Fecha de nacimiento', item.fechaNacimiento),
-            ]),
-            const SizedBox(height: 18),
-            const Text('VINCULACION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
-            const SizedBox(height: 8),
-            _card([
-              _row('Fecha de ingreso', item.fechaIngreso),
-              _row('Vehículo vinculado', item.placaVehiculo.isEmpty ? 'Sin asignar' : item.placaVehiculo),
             ]),
             const SizedBox(height: 22),
             PrimaryButton(
@@ -61,7 +55,7 @@ class AssociateDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             PrimaryButton(
-              text: item.activo ? 'Desafiliar asociado' : 'Reactivar asociado',
+              text: item.activo ? 'Desactivar asociado' : 'Reactivar asociado',
               isOutlined: true,
               color: item.activo ? AppColors.dangerText : AppColors.successText,
               onPressed: () => provider.toggleAssociateStatus(item.id),
@@ -84,7 +78,7 @@ class AssociateDetailScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(k, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-            Text(v, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            Flexible(child: Text(v, textAlign: TextAlign.end, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
           ],
         ),
       );
