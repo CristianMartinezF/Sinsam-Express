@@ -34,54 +34,71 @@ class AppProvider extends ChangeNotifier {
         }
       }
 
-      final results = await Future.wait([
-        safeLoad('asociados', ApiService.getAssociates),
-        safeLoad('afiliaciones', ApiService.getAffiliations),
-        safeLoad('conductores', ApiService.getDrivers),
-        safeLoad('sanciones', ApiService.getSanctions),
-        safeLoad('vehiculos', ApiService.getVehicles),
-        safeLoad('tarifas', ApiService.getFares),
-        safeLoad('planillas', ApiService.getSheets),
-        safeLoad('despachos', ApiService.getDispatches),
-      ]);
+      if (ApiService.userRole == 'ASOCIADO') {
+        final results = await Future.wait([
+          safeLoad('vehiculos', ApiService.getVehicles),
+          safeLoad('planillas', ApiService.getSheets),
+          safeLoad('despachos', ApiService.getDispatches),
+        ]);
 
-      associates = results[0] as List<AssociateModel>;
-      affiliations = results[1] as List<AffiliationModel>;
-      drivers = results[2] as List<DriverModel>;
-      sanctions = results[3] as List<SanctionModel>;
-      vehicles = results[4] as List<VehicleModel>;
-      fares = results[5] as List<FareModel>;
-      dispatches = results[7] as List<DispatchModel>;
+        associates = [];
+        affiliations = [];
+        drivers = [];
+        sanctions = [];
+        fares = [];
+        vehicles = results[0] as List<VehicleModel>;
+        sheets = results[1] as List<SheetModel>;
+        dispatches = results[2] as List<DispatchModel>;
+      } else {
+        final results = await Future.wait([
+          safeLoad('asociados', ApiService.getAssociates),
+          safeLoad('afiliaciones', ApiService.getAffiliations),
+          safeLoad('conductores', ApiService.getDrivers),
+          safeLoad('sanciones', ApiService.getSanctions),
+          safeLoad('vehiculos', ApiService.getVehicles),
+          safeLoad('tarifas', ApiService.getFares),
+          safeLoad('planillas', ApiService.getSheets),
+          safeLoad('despachos', ApiService.getDispatches),
+        ]);
 
-      sheets = (results[6] as List<SheetModel>).map((s) {
-        if (s.valor > 0) return s;
+        associates = results[0] as List<AssociateModel>;
+        affiliations = results[1] as List<AffiliationModel>;
+        drivers = results[2] as List<DriverModel>;
+        sanctions = results[3] as List<SanctionModel>;
+        vehicles = results[4] as List<VehicleModel>;
+        fares = results[5] as List<FareModel>;
+        dispatches = results[7] as List<DispatchModel>;
 
-        FareModel? matchedFare;
-        if (s.tarifaId.isNotEmpty) {
-          matchedFare = fares.where((f) => f.id == s.tarifaId).firstOrNull;
-        }
-        if (matchedFare == null) {
-          final vehicle = vehicles.where((v) => v.placa == s.placa).firstOrNull;
-          if (vehicle != null && vehicle.tarifa.isNotEmpty) {
-            matchedFare = fares
-                .where((f) => f.id == vehicle.tarifa || f.nombre == vehicle.tarifa)
-                .firstOrNull;
+        sheets = (results[6] as List<SheetModel>).map((s) {
+          if (s.valor > 0) return s;
+
+          FareModel? matchedFare;
+          if (s.tarifaId.isNotEmpty) {
+            matchedFare = fares.where((f) => f.id == s.tarifaId).firstOrNull;
           }
-        }
-        matchedFare ??= fares.where((f) => f.activa).firstOrNull;
+          if (matchedFare == null) {
+            final vehicle = vehicles.where((v) => v.placa == s.placa).firstOrNull;
+            if (vehicle != null && vehicle.tarifa.isNotEmpty) {
+              matchedFare = fares
+                  .where((f) => f.id == vehicle.tarifa || f.nombre == vehicle.tarifa)
+                  .firstOrNull;
+            }
+          }
+          matchedFare ??= fares.where((f) => f.activa).firstOrNull;
 
-        if (matchedFare == null) return s;
-        return SheetModel(
-          id: s.id,
-          numero: s.numero,
-          placa: s.placa,
-          conductor: s.conductor,
-          fecha: s.fecha,
-          tarifaId: matchedFare.id,
-          valor: matchedFare.total,
-          estado: s.estado,
-        );
-      }).toList();
+          if (matchedFare == null) return s;
+          return SheetModel(
+            id: s.id,
+            numero: s.numero,
+            placa: s.placa,
+            conductor: s.conductor,
+            fecha: s.fecha,
+            tarifaId: matchedFare.id,
+            valor: matchedFare.total,
+            estado: s.estado,
+          );
+        }).toList();
+      }
     } catch (e) {
       debugPrint('Error general fetchInitialData: $e');
       hasServerError = true;

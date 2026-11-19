@@ -5,12 +5,30 @@ import '../models/app_models.dart';
 class ApiService {
   static const String baseUrl = 'https://api.sitram.cecar.cloud/api';
   static String? authToken;
+  static String userRole = '';
 
   static Map<String, String> get headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         if (authToken != null) 'Authorization': 'Bearer $authToken',
       };
+
+  static String _extractRoleFromJwt(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return '';
+      final normalized = base64Url.normalize(parts[1]);
+      final payload = jsonDecode(utf8.decode(base64Url.decode(normalized)));
+      if (payload is Map<String, dynamic>) {
+        final rawRole = payload['rol'] ??
+            payload['role'] ??
+            payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+            '';
+        return rawRole.toString().toUpperCase();
+      }
+    } catch (_) {}
+    return '';
+  }
 
   static List<dynamic> _extractItems(String responseBody) {
     final decoded = jsonDecode(responseBody);
@@ -50,6 +68,11 @@ class ApiService {
             ? decoded['data'] as Map<String, dynamic>
             : decoded;
         authToken = data['token'] ?? data['accessToken'] ?? decoded['token'];
+        final explicitRole =
+            (data['rol'] ?? data['role'] ?? decoded['rol'] ?? '').toString().toUpperCase();
+        userRole = explicitRole.isNotEmpty
+            ? explicitRole
+            : (authToken != null ? _extractRoleFromJwt(authToken!) : '');
       }
       return true;
     }
@@ -153,12 +176,14 @@ class ApiService {
   }
 
   static Future<List<VehicleModel>> getVehicles() async {
-    final response = await http.get(Uri.parse('$baseUrl/vehiculos'), headers: headers);
+    final endpoint =
+        userRole == 'ASOCIADO' ? '$baseUrl/mi-cuenta/vehiculos' : '$baseUrl/vehiculos';
+    final response = await http.get(Uri.parse(endpoint), headers: headers);
     if (response.statusCode == 200) {
       final list = _extractItems(response.body);
       return list.map((e) => VehicleModel.fromJson(e)).toList();
     }
-    throw Exception('Error al cargar vehículos');
+    throw Exception('Error al cargar vehículos (${response.statusCode})');
   }
 
   static Future<VehicleModel> createVehicle(VehicleModel item) async {
@@ -207,21 +232,25 @@ class ApiService {
   }
 
   static Future<List<SheetModel>> getSheets() async {
-    final response = await http.get(Uri.parse('$baseUrl/planillas'), headers: headers);
+    final endpoint =
+        userRole == 'ASOCIADO' ? '$baseUrl/mi-cuenta/viajes' : '$baseUrl/planillas';
+    final response = await http.get(Uri.parse(endpoint), headers: headers);
     if (response.statusCode == 200) {
       final list = _extractItems(response.body);
       return list.map((e) => SheetModel.fromJson(e)).toList();
     }
-    throw Exception('Error al cargar planillas');
+    throw Exception('Error al cargar planillas (${response.statusCode})');
   }
 
   static Future<List<DispatchModel>> getDispatches() async {
-    final response = await http.get(Uri.parse('$baseUrl/despachos'), headers: headers);
+    final endpoint =
+        userRole == 'ASOCIADO' ? '$baseUrl/mi-cuenta/despachos' : '$baseUrl/despachos';
+    final response = await http.get(Uri.parse(endpoint), headers: headers);
     if (response.statusCode == 200) {
       final list = _extractItems(response.body);
       return list.map((e) => DispatchModel.fromJson(e)).toList();
     }
-    throw Exception('Error al cargar despachos');
+    throw Exception('Error al cargar despachos (${response.statusCode})');
   }
 
   static Future<DispatchModel> createDispatch(DispatchModel item) async {
